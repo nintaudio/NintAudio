@@ -1,7 +1,4 @@
-use std::io::Cursor;
-
 use rodio::source::Source;
-use rust_embed::RustEmbed;
 
 use super::{Action, Assets, Game};
 
@@ -21,7 +18,7 @@ pub struct Moles {
 }
 
 impl Game for Moles {
-  fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> bool {
+  fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
     self.game_time -= 1;
     self.spawn_time = if self.spawn_time == 0{
         self.spawn_rate
@@ -46,7 +43,7 @@ impl Game for Moles {
 
     println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}", act, self.left_count, self.right_count, self.score, self.game_time/100, self.spawn_time);
     self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
-    false
+    None
   }
 }
 
@@ -62,7 +59,7 @@ pub fn new(device: &rodio::Device) -> Moles {
     sink.append(source.repeat_infinite());
 
     Moles { left_count: 0, right_count: 0, position: 0, sink, score: 0, spawn_time: 5_00, spawn_rate: 5_00, game_time: 60_00}
-    
+
 }
 
 // One-line description

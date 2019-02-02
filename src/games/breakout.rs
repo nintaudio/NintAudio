@@ -1,3 +1,5 @@
+use rodio::source::Source;
+
 use super::{Action, Assets, Game};
 
 // whatever you want
@@ -14,7 +16,7 @@ pub struct Breakout {
 }
 
 impl Game for Breakout {
-    fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> bool {
+    fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
         match act {
             Some(Action::Left) => {
                 self.left_count += 1;
@@ -56,7 +58,7 @@ impl Game for Breakout {
         println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
         self.sink
             .set_emitter_position([self.position as f32 / 10., 0., 0.]);
-        false
+        None
     }
 }
 
