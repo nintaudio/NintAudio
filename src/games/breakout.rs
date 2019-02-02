@@ -1,13 +1,4 @@
-use std::io::Cursor;
-
-use rodio::source::Source;
-use rust_embed::RustEmbed;
-
-use super::{Action, Game};
-
-#[derive(RustEmbed)]
-#[folder = "assets/"]
-struct Assets;
+use super::{Action, Assets, Game};
 
 // whatever you want
 pub struct Breakout {
@@ -16,7 +7,10 @@ pub struct Breakout {
     position: i16,
     sink: rodio::SpatialSink,
     bricks: [[bool; 2]; 5],
-    ball: (u8, u8),
+    ball_x: u8,
+    ball_y: u8,
+    hit_r_wall: bool,
+    hit_top: bool,
 }
 
 impl Game for Breakout {
@@ -32,10 +26,14 @@ impl Game for Breakout {
             }
             _ => {}
         };
+
+        self.ball_x += 1;
+        self.ball_y += 1;
+
         println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
         self.sink
             .set_emitter_position([self.position as f32 / 10., 0., 0.]);
-        None
+        false
     }
 }
 
@@ -47,7 +45,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
-    let source = rodio::Decoder::new(Cursor::new(Assets::get("music.ogg").unwrap())).unwrap();
+    let source = audio!("music.ogg");
     sink.append(source.repeat_infinite());
 
     Breakout {
@@ -56,7 +54,10 @@ pub fn new(device: &rodio::Device) -> Breakout {
         position: 0,
         sink,
         bricks: [[true; 2]; 5],
-        ball: (0, 2),
+        ball_x: 2,
+        ball_y: 0,
+        hit_top: false,
+        hit_r_wall: false,
     }
 }
 
