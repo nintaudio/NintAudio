@@ -10,14 +10,14 @@ use super::{Game, Action};
 struct Assets;
 
 // whatever you want
-pub struct Demo {
+pub struct State {
   left_count: u8,
   right_count: u8,
   position: i16,
   sink: rodio::SpatialSink,
 }
 
-impl Game for Demo {
+impl Game for State {
   fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> bool {
     match act {
       Some(Action::Left) => {
@@ -37,7 +37,7 @@ impl Game for Demo {
 }
 
 // Create a new game
-pub fn new(device: &rodio::Device) -> Demo {
+pub fn new(device: &rodio::Device) -> State {
     let sink = rodio::SpatialSink::new(
         device,
         [ 0., 0., 0.], // object
@@ -47,7 +47,7 @@ pub fn new(device: &rodio::Device) -> Demo {
     let source = rodio::Decoder::new(Cursor::new(Assets::get("music.ogg").unwrap())).unwrap();
     sink.append(source.repeat_infinite());
 
-    Demo { left_count: 0, right_count: 0, position: 0, sink }
+    State { left_count: 0, right_count: 0, position: 0, sink }
 }
 
 // One-line description
