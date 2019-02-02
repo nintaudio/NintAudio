@@ -4,11 +4,13 @@ use std::thread;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+use std::time::Duration;
 
 mod games;
 
 fn main() {
-    let mut game = games::select();
+    let device = rodio::default_output_device().unwrap();
+    let mut game = games::select(&device);
 
     let keys = stdin().keys(); // stdin keys
     let mut stdout = stdout().into_raw_mode().unwrap(); // stdout to raw mode.
@@ -54,9 +56,10 @@ fn main() {
         )
         .unwrap();
 
-        game.update(act.ok());
+        game.update(act.ok(), &device);
 
         stdout.flush().unwrap();
+        thread::sleep(Duration::from_millis(10));
     }
 
     // Show the cursor again before we exit.
