@@ -63,6 +63,7 @@ pub fn new(device: &rodio::Device) -> Moles {
     let source = audio!("enemy_spawn.mp3");
     sink.append(source.repeat_infinite());
 
+<<<<<<< HEAD
     Moles { 
         left_count: 0, 
         right_count: 0, 
@@ -72,6 +73,10 @@ pub fn new(device: &rodio::Device) -> Moles {
         spawn_rate: 5_00, 
         game_time: 60_00}
     
+=======
+    Moles { left_count: 0, right_count: 0, position: 0, sink, score: 0, spawn_time: 5_00, spawn_rate: 5_00, game_time: 60_00}
+
+>>>>>>> 84f020fcbc914be85bbf30613d648c0e0473d232
 }
 
 // One-line description

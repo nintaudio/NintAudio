@@ -1,10 +1,12 @@
+use rodio::source::Source;
+
 use super::{Action, Assets, Game};
 
 // whatever you want
 pub struct Breakout {
     left_count: u8,
     right_count: u8,
-    position: i16,
+    position: u8,
     sink: rodio::SpatialSink,
     bricks: [[bool; 2]; 5],
     ball_x: u8,
@@ -27,13 +29,36 @@ impl Game for Breakout {
             _ => {}
         };
 
+        if self.ball_x == 5 {
+            self.hit_r_wall = true;
+        } else if self.ball_x == 0 {
+            self.hit_r_wall = false;
+        }
+
+        if self.ball_y == 7 {
+            self.hit_top = true;
+        } else if self.ball_y == 0 && self.position == self.ball_x {
+            self.hit_top = false;
+        }
+
+        if self.hit_r_wall == false {
+            self.ball_x += 1;
+        } else {
+            self.ball_x -= 1;
+        }
+        if self.hit_top == false {
+            self.ball_y += 1;
+        } else {
+            self.ball_y -= 1;
+        }
+
         self.ball_x += 1;
         self.ball_y += 1;
 
         println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
         self.sink
             .set_emitter_position([self.position as f32 / 10., 0., 0.]);
-        false
+        None
     }
 }
 
@@ -51,7 +76,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
     Breakout {
         left_count: 0,
         right_count: 0,
-        position: 0,
+        position: 2,
         sink,
         bricks: [[true; 2]; 5],
         ball_x: 2,
