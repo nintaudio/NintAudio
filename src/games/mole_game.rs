@@ -16,11 +16,21 @@ pub struct Moles {
   position: i16,
   sink: rodio::SpatialSink,
   score: u8,
-  spawn_timer: u8,
+  spawn_time: u16,
+  spawn_rate: u16,
+  game_time: u16,
+
 }
 
 impl Game for Moles {
   fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> bool {
+    self.game_time -= 1;
+    self.spawn_time = if self.spawn_time == 0{
+        self.spawn_rate
+        }else{
+        self.spawn_time - 1
+        };
+
     match act {
       Some(Action::Left) => {
             self.left_count += 1;
@@ -31,12 +41,12 @@ impl Game for Moles {
             self.position += 1;
         },
       Some(Action::Fire) => {
-            self.point += 1;
+            self.score += 1;
         },
       _ => {},
     };
 
-    println!("{:?} l: {} r: {}\tPoints: {}", act, self.left_count, self.right_count, self.point);
+    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}", act, self.left_count, self.right_count, self.score, self.game_time/100, self.spawn_time);
     self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
     false
   }
@@ -53,7 +63,7 @@ pub fn new(device: &rodio::Device) -> Moles {
     let source = rodio::Decoder::new(Cursor::new(Assets::get("enemy_spawn.mp3").unwrap())).unwrap();
     sink.append(source.repeat_infinite());
 
-    Moles { left_count: 0, right_count: 0, position: 0, sink, score: 0, spawn_time: 10_000}
+    Moles { left_count: 0, right_count: 0, position: 0, sink, score: 0, spawn_time: 5_00, spawn_rate: 5_00, game_time: 60_00}
     
 }
 
