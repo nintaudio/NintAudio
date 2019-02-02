@@ -1,7 +1,7 @@
 [package]
-name = "NintAudio"
+name = "nintaudio"
 version = "0.1.0"
-authors = ["Xavier L'Heureux <xavier.lheureux@icloud.com>"]
+authors = ["Xavier L'Heureux <xavier.lheureux@icloud.com>", "Yuliya Shpunarska <yuliya.shpunarska@gmail.com>", "Vincent Moreau"]
 edition = "2018"
 
 [dependencies]
