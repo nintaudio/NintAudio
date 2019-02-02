@@ -3,7 +3,9 @@ use std::io::Cursor;
 use rodio::source::Source;
 use rust_embed::RustEmbed;
 
-use super::{Game, Action};
+use super::{Action, Game};
+
+//TON MOLE BUGGGGG!!!!!!!!!!!!!!
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
@@ -56,8 +58,8 @@ impl Game for Moles {
 pub fn new(device: &rodio::Device) -> Moles {
     let sink = rodio::SpatialSink::new(
         device,
-        [ 0., 0., 0.], // object
-        [ 1., 0., 0.], // left ear
+        [0., 0., 0.],  // object
+        [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
     let source = rodio::Decoder::new(Cursor::new(Assets::get("enemy_spawn.mp3").unwrap())).unwrap();
