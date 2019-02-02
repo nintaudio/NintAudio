@@ -1,15 +1,6 @@
-use std::io::Cursor;
-
 use rodio::source::Source;
-use rust_embed::RustEmbed;
 
-use super::{Action, Game};
-
-//TON MOLE BUGGGGG!!!!!!!!!!!!!!
-
-#[derive(RustEmbed)]
-#[folder = "assets/"]
-struct Assets;
+use super::{Action, Assets, Game};
 
 // whatever you want
 pub struct Moles {
@@ -25,7 +16,7 @@ pub struct Moles {
 }
 
 impl Game for Moles {
-  fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> bool {
+  fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
     self.game_time -= 1;
     self.spawn_time = if self.spawn_time == 0{
         self.spawn_rate
@@ -48,9 +39,16 @@ impl Game for Moles {
       _ => {},
     };
 
-    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}", act, self.left_count, self.right_count, self.score, self.game_time/100, self.spawn_time);
+    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}", 
+             act, 
+             self.left_count, 
+             self.right_count, 
+             self.score, 
+             self.game_time/100, 
+             self.spawn_time);
+    
     self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
-    false
+    None
   }
 }
 
@@ -62,10 +60,17 @@ pub fn new(device: &rodio::Device) -> Moles {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
-    let source = rodio::Decoder::new(Cursor::new(Assets::get("enemy_spawn.mp3").unwrap())).unwrap();
+    let source = audio!("enemy_spawn.mp3");
     sink.append(source.repeat_infinite());
 
-    Moles { left_count: 0, right_count: 0, position: 0, sink, score: 0, spawn_time: 5_00, spawn_rate: 5_00, game_time: 60_00}
+    Moles { 
+        left_count: 0, 
+        right_count: 0, 
+        position: 0, 
+        sink, score: 0, 
+        spawn_time: 5_00, 
+        spawn_rate: 5_00, 
+        game_time: 60_00}
     
 }
 
