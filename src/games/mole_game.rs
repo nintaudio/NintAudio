@@ -3,13 +3,9 @@ use std::io::Cursor;
 use rodio::source::Source;
 use rust_embed::RustEmbed;
 
-use super::{Action, Game};
+use super::{Action, Assets, Game};
 
 //TON MOLE BUGGGGG!!!!!!!!!!!!!!
-
-#[derive(RustEmbed)]
-#[folder = "assets/"]
-struct Assets;
 
 // whatever you want
 pub struct Moles {
@@ -56,7 +52,7 @@ pub fn new(device: &rodio::Device) -> Moles {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
-    let source = rodio::Decoder::new(Cursor::new(Assets::get("enemy_spawn.mp3").unwrap())).unwrap();
+    let source = audio!("enemy_spawn.mp3");
     sink.append(source.repeat_infinite());
 
     Moles {
