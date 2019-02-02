@@ -1,5 +1,6 @@
 use super::{Game, Action};
 
+// whatever you want
 #[derive(Debug)]
 pub struct Demo {
   left_count: u8,
@@ -18,14 +19,17 @@ impl Game for Demo {
   }
 }
 
+// Create a new game
 pub fn new() -> Demo {
     Demo { left_count: 0, right_count: 0 }
 }
 
+// One-line description
 pub fn about() -> &'static str {
     "A"
 }
 
+// Complete description
 pub fn description() -> &'static str {
     "A long"
 }
