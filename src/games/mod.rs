@@ -1,6 +1,6 @@
 use clap::{clap_app, crate_authors, crate_description, crate_version};
 
-mod demo;
+mod demo; // ça
 
 pub trait Game {
     fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> bool;
@@ -16,7 +16,7 @@ pub enum Action {
 
 pub fn select(device: &rodio::Device) -> Box<dyn Game> {
     let subcommands = vec![
-        clap_app!(demo => (long_about: demo::description())(about: demo::about())),
+        clap_app!(demo => (long_about: demo::description())(about: demo::about())), // ça
     ];
     let mat = clap_app!(nintaudio =>
       (version: crate_version!())
@@ -27,7 +27,7 @@ pub fn select(device: &rodio::Device) -> Box<dyn Game> {
     .get_matches();
 
     match mat.subcommand_name() {
-        Some("demo") => Box::new(demo::new(device)),
+        Some("demo") => Box::new(demo::new(device)), // ça
         None => panic!("Please provide a required subcommand"),
         _ => unreachable!(),
     }
