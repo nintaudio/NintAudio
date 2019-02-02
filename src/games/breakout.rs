@@ -37,8 +37,8 @@ impl Game for Breakout {
       _ => {},
     };
     
-    ball_x += 1;
-    ball_y += 1;
+    self.ball_x += 1;
+    self.ball_y += 1;
 
      
 

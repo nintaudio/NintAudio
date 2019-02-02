@@ -5,6 +5,8 @@ use rust_embed::RustEmbed;
 
 use super::{Game, Action};
 
+//TON MOLE BUGGGGG!!!!!!!!!!!!!!
+
 #[derive(RustEmbed)]
 #[folder = "assets/"]
 struct Assets;
