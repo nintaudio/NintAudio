@@ -1,12 +1,33 @@
 use clap::{clap_app, crate_authors, crate_description, crate_version};
+use rust_embed::RustEmbed;
 
-mod demo; // ça
+#[derive(RustEmbed)]
+#[folder = "assets/"]
+struct Assets;
+
+#[macro_export]
+macro_rules! audio {
+    ($file: tt) => {
+        rodio::Decoder::new(std::io::Cursor::new(Assets::get($file).unwrap())).unwrap()
+    };
+}
+
+#[macro_export]
+macro_rules! once {
+    ($device: tt, $file: tt) => {
+        rodio::play_once($device, std::io::Cursor::new(Assets::get($file).unwrap()))
+            .unwrap()
+            .detach()
+    };
+}
+
 mod breakout;
-mod pong;
+mod demo; // ça
 mod mole_game;
+mod pong;
 
 pub trait Game {
-    fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> bool;
+    fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> Option<u32>;
 }
 
 #[derive(Debug)]
@@ -39,7 +60,7 @@ pub fn select(device: &rodio::Device) -> Box<dyn Game> {
         None => {
             println!("Please provide a required game name as first argument");
             std::process::exit(1)
-        },
+        }
         _ => unreachable!(),
     }
 }

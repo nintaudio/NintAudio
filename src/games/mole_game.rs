@@ -3,7 +3,7 @@ use std::io::Cursor;
 use rodio::source::Source;
 use rust_embed::RustEmbed;
 
-use super::{Game, Action};
+use super::{Action, Game};
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
@@ -11,50 +11,60 @@ struct Assets;
 
 // whatever you want
 pub struct Moles {
-  left_count: u8,
-  right_count: u8,
-  position: i16,
-  sink: rodio::SpatialSink,
-  score: u8,
-  spawn_timer: u8,
+    left_count: u8,
+    right_count: u8,
+    position: i16,
+    sink: rodio::SpatialSink,
+    score: u8,
+    spawn_timer: u8,
 }
 
 impl Game for Moles {
-  fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> bool {
-    match act {
-      Some(Action::Left) => {
-            self.left_count += 1;
-            self.position -= 1;
-        },
-      Some(Action::Right) => {
-            self.right_count += 1;
-            self.position += 1;
-        },
-      Some(Action::Fire) => {
-            self.point += 1;
-        },
-      _ => {},
-    };
+    fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
+        match act {
+            Some(Action::Left) => {
+                self.left_count += 1;
+                self.position -= 1;
+            }
+            Some(Action::Right) => {
+                self.right_count += 1;
+                self.position += 1;
+            }
+            Some(Action::Fire) => {
+                self.point += 1;
+            }
+            _ => {}
+        };
 
-    println!("{:?} l: {} r: {}\tPoints: {}", act, self.left_count, self.right_count, self.point);
-    self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
-    false
-  }
+        println!(
+            "{:?} l: {} r: {}\tPoints: {}",
+            act, self.left_count, self.right_count, self.point
+        );
+        self.sink
+            .set_emitter_position([self.position as f32 / 10., 0., 0.]);
+        None
+    }
 }
 
 // Create a new game
 pub fn new(device: &rodio::Device) -> Moles {
     let sink = rodio::SpatialSink::new(
         device,
-        [ 0., 0., 0.], // object
-        [ 1., 0., 0.], // left ear
+        [0., 0., 0.],  // object
+        [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
     let source = rodio::Decoder::new(Cursor::new(Assets::get("enemy_spawn.mp3").unwrap())).unwrap();
     sink.append(source.repeat_infinite());
 
-    Moles { left_count: 0, right_count: 0, position: 0, sink, score: 0, spawn_time: 10_000}
-    
+    Moles {
+        left_count: 0,
+        right_count: 0,
+        position: 0,
+        sink,
+        score: 0,
+        spawn_time: 10_000,
+    }
 }
 
 // One-line description
