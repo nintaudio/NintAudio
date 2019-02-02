@@ -16,7 +16,10 @@ pub struct Breakout {
   position: i16,
   sink: rodio::SpatialSink,
   bricks: [[bool; 2]; 5], 
-  ball: (u8, u8),
+  ball_x: u8,
+  ball_y: u8,
+  hit_r_wall: bool,
+  hit_top: bool,
 
 }
 
@@ -33,6 +36,12 @@ impl Game for Breakout {
         },
       _ => {},
     };
+    
+    ball_x += 1;
+    ball_y += 1;
+
+     
+
     println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
     self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
     false
@@ -50,7 +59,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
     let source = rodio::Decoder::new(Cursor::new(Assets::get("music.ogg").unwrap())).unwrap();
     sink.append(source.repeat_infinite());
 
-    Breakout { left_count: 0, right_count: 0, position: 0, sink, bricks: [[true; 2 ]; 5], ball: (0, 2) }
+    Breakout { left_count: 0, right_count: 0, position: 0, sink, bricks: [[true; 2 ]; 5], ball_x:2, ball_y: 0, hit_top: false, hit_r_wall: false }
 }
 
 // One-line description
