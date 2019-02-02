@@ -15,7 +15,8 @@ pub struct Moles {
   right_count: u8,
   position: i16,
   sink: rodio::SpatialSink,
-  point: u8,
+  score: u8,
+  spawn_timer: u8,
 }
 
 impl Game for Moles {
@@ -52,7 +53,7 @@ pub fn new(device: &rodio::Device) -> Moles {
     let source = rodio::Decoder::new(Cursor::new(Assets::get("enemy_spawn.mp3").unwrap())).unwrap();
     sink.append(source.repeat_infinite());
 
-    Moles { left_count: 0, right_count: 0, position: 0, sink, point: 0}
+    Moles { left_count: 0, right_count: 0, position: 0, sink, score: 0, spawn_time: 10_000}
     
 }
 
