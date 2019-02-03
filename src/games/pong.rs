@@ -59,7 +59,6 @@ impl Game for State {
                 f32::from(self.ball.x - self.position),
                 f32::from(self.ball.y),
             );
-
         }
         if self.ball.x < -WIDTH {
             self.ball.x = -WIDTH;
@@ -86,8 +85,11 @@ impl Game for State {
         }
 
         println!("{:?} b: {:?} p: {:?}", act, self.ball, self.position);
-        self.sink
-            .set_emitter_position([f32::from(self.ball.x - self.position) / 100., f32::from(self.ball.y) / 100., 0.]);
+        self.sink.set_emitter_position([
+            f32::from(self.ball.x - self.position) / 100.,
+            f32::from(self.ball.y) / 100.,
+            0.,
+        ]);
         None
     }
 }
@@ -96,7 +98,7 @@ impl Game for State {
 pub fn new(device: &rodio::Device) -> State {
     let sink = rodio::SpatialSink::new(
         device,
-        [0., 0., 0.],  // object
+        [0., 0., 0.],   // object
         [10., 0., 0.],  // left ear
         [-10., 0., 0.], // right ear
     );
@@ -105,7 +107,10 @@ pub fn new(device: &rodio::Device) -> State {
 
     State {
         ball: Point { x: 0, y: DEPTH },
-        speed: Point { x: SPEED, y: -SPEED },
+        speed: Point {
+            x: SPEED,
+            y: -SPEED,
+        },
         position: 0,
         points: 0,
         sink,
