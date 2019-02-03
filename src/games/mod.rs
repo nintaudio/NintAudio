@@ -6,7 +6,7 @@ use rodio::Decoder;
 use super::Assets;
 
 mod breakout;
-mod demo; // ça
+// mod demo; // ça
 mod moles;
 mod pong;
 
@@ -43,7 +43,7 @@ pub enum Action {
 
 pub fn select(device: &rodio::Device) -> Box<dyn Game> {
     let subcommands = vec![
-        clap_app!(demo => (long_about: demo::description())(about: demo::about())), // ça
+        // clap_app!(demo => (long_about: demo::description())(about: demo::about())), // ça
         clap_app!(breakout => (long_about: breakout::description())(about: breakout::about())),
         clap_app!(pong => (long_about: pong::description())(about: pong::about())),
         clap_app!(moles => (long_about: moles::description())(about: moles::about())),
@@ -56,7 +56,7 @@ pub fn select(device: &rodio::Device) -> Box<dyn Game> {
     );
 
     match clap.get_matches().subcommand_name() {
-        Some("demo") => Box::new(demo::new(device)), // ça
+        // Some("demo") => Box::new(demo::new(device)), // ça
         Some("pong") => Box::new(pong::new(device)),
         Some("moles") => Box::new(moles::new(device)),
         Some("breakout") => Box::new(breakout::new(device)),

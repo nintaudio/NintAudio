@@ -6,7 +6,7 @@ use ai_behavior::{Action, Sequence};
 use image::png;
 use image::{ImageBuffer, ImageDecoder};
 use piston_window::{
-    OpenGL, PistonWindow, PressEvent, ResizeEvent, Size, Texture, TextureSettings, Window, Key,
+    Key, OpenGL, PistonWindow, PressEvent, ResizeEvent, Size, Texture, TextureSettings, Window,
     WindowSettings,
 };
 use sprite::*;
@@ -32,7 +32,7 @@ pub fn init(tx: &std::sync::mpsc::Sender<games::Action>) {
     let mut sprite = Sprite::from_texture(tex.clone());
     let Size { width, height } = window.size();
     sprite.set_position(width / 2., -f64::from(h as u32));
-    sprite.set_scale(0.5, 0.5);
+    sprite.set_scale(0.25, 0.25);
 
     let id = scene.add_child(sprite);
 
@@ -42,7 +42,10 @@ pub fn init(tx: &std::sync::mpsc::Sender<games::Action>) {
             EaseFunction::BounceOut,
             Box::new(MoveTo(1., width / 2., height / 2.)),
         )),
-        Action(Ease(EaseFunction::CubicOut, Box::new(ScaleTo(1., 1., 1.)))),
+        Action(Ease(
+            EaseFunction::CubicOut,
+            Box::new(ScaleTo(1., 0.5, 0.5)),
+        )),
     ]);
     scene.run(id, &seq);
 
@@ -70,24 +73,22 @@ pub fn init(tx: &std::sync::mpsc::Sender<games::Action>) {
             scene.run(id, &recenter);
         }
 
-        match e.press_args()  {
-            Some(piston_window::Button::Keyboard(k)) => {
-                match k {
-                    Key::Q => Some(games::Action::Quit),
-                    Key::Left | Key::A | Key::D4 => Some(games::Action::Left),
-                    Key::Right | Key::D | Key::D6 => Some(games::Action::Right),
-                    Key::Return | Key::Space | Key::D5 => Some(games::Action::Fire),
-                    Key::Up | Key::W | Key::D8 => Some(games::Action::Up),
-                    _ => None,
-                }
+        let act = match e.press_args() {
+            Some(piston_window::Button::Keyboard(k)) => match k {
+                Key::Q => Some(games::Action::Quit),
+                Key::Left | Key::A | Key::D4 => Some(games::Action::Left),
+                Key::Right | Key::D | Key::D6 => Some(games::Action::Right),
+                Key::Return | Key::Space | Key::D5 => Some(games::Action::Fire),
+                Key::Up | Key::W | Key::D8 => Some(games::Action::Up),
+                _ => None,
             },
             _ => None,
-        }
-        .and_then(|m| Some(tx.send(m).unwrap()));
+        };
+
+        if let Some(m) = act {
+            if tx.send(m).is_err() {
+                return;
+            }
+        };
     }
 }
-
-pub fn refresh() {}
-
-// Show the cursor again before we exit.
-pub fn clear() {}
