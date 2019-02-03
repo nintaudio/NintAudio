@@ -91,7 +91,7 @@ fn main() {
         }
     });
 
-    if cfg!(piston) {
+    if cfg!(feature = "piston") {
         vessel::piston::init(&tx);
     } else {
         vessel::term::init(&tx);
