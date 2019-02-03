@@ -46,8 +46,6 @@ fn main() {
     let mut direction = 0.;
 
     loop {
-
-
         write!(
             stdout,
             "{}{}",
