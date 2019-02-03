@@ -34,6 +34,7 @@ fn main() {
                 Key::Left | Key::Char('a') | Key::Char('4') => Some(games::Action::Left),
                 Key::Right | Key::Char('d') | Key::Char('6') => Some(games::Action::Right),
                 Key::Char('\n') | Key::Char(' ') | Key::Char('5') => Some(games::Action::Fire),
+		Key::Up | Key::Char('w') | Key::Char('8') => Some(games::Action::Up),
                 _ => None,
             }
             .and_then(|m| tx.send(m).ok());
