@@ -4,7 +4,8 @@ use std::ops::AddAssign;
 use super::{audio, once, Action, Game};
 
 const SPEED: i16 = 5;
-const DEPTH: i16 = 200;
+const DEPTH: i16 = 800;
+const WIDTH: i16 = 400;
 
 #[derive(Debug, Clone, Copy)]
 struct Point {
@@ -40,31 +41,32 @@ impl Game for State {
 
         if self.position > 40 {
             self.position = 40;
-            once(device, "wall_hit.mp3", 0., 0.);
+            once(device, "wall_hit.ogg", 0., 0.);
         }
         if self.position < -40 {
             self.position = -40;
-            once(device, "wall_hit.mp3", 0., 0.);
+            once(device, "wall_hit.ogg", 0., 0.);
         }
 
         self.ball += self.speed;
 
-        if self.ball.x > 40 {
-            self.ball.x = 120;
+        if self.ball.x > WIDTH {
+            self.ball.x = WIDTH;
             self.speed.x = -self.speed.x;
             once(
                 device,
-                "wall_hit.mp3",
+                "wall_hit.ogg",
                 f32::from(self.ball.x - self.position),
                 f32::from(self.ball.y),
             );
+
         }
-        if self.ball.x < -40 {
-            self.ball.x = -120;
+        if self.ball.x < -WIDTH {
+            self.ball.x = -WIDTH;
             self.speed.x = -self.speed.x;
             once(
                 device,
-                "wall_hit.mp3",
+                "wall_hit.ogg",
                 f32::from(self.ball.x - self.position),
                 f32::from(self.ball.y),
             );
@@ -80,11 +82,12 @@ impl Game for State {
 
         if self.ball.y == DEPTH {
             self.speed.y = -SPEED;
+            once(device, "wall_hit.ogg", 0., 0.);
         }
 
         println!("{:?} b: {:?} p: {:?}", act, self.ball, self.position);
         self.sink
-            .set_emitter_position([f32::from(self.position) / 10., 0., 0.]);
+            .set_emitter_position([f32::from(self.ball.x - self.position) / 100., f32::from(self.ball.y) / 100., 0.]);
         None
     }
 }
@@ -94,15 +97,15 @@ pub fn new(device: &rodio::Device) -> State {
     let sink = rodio::SpatialSink::new(
         device,
         [0., 0., 0.],  // object
-        [1., 0., 0.],  // left ear
-        [-1., 0., 0.], // right ear
+        [10., 0., 0.],  // left ear
+        [-10., 0., 0.], // right ear
     );
-    let source = audio("music.ogg");
+    let source = rodio::source::SineWave::new(220);
     sink.append(source.repeat_infinite());
 
     State {
         ball: Point { x: 0, y: DEPTH },
-        speed: Point { x: 0, y: -SPEED },
+        speed: Point { x: SPEED, y: -SPEED },
         position: 0,
         points: 0,
         sink,

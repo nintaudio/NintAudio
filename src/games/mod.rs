@@ -1,4 +1,5 @@
 use std::io::Cursor;
+use rodio::source::Source;
 
 use clap::{clap_app, crate_authors, crate_description, crate_version};
 use rodio::Decoder;
@@ -14,7 +15,10 @@ mod mole_game;
 mod pong;
 
 pub fn audio(file: &str) -> Decoder<Cursor<std::borrow::Cow<'_, [u8]>>> {
-    Decoder::new(Cursor::new(Assets::get(file).unwrap())).unwrap()
+    match Assets::get(file) {
+        Some(content) => Decoder::new(Cursor::new(content)).unwrap(),
+        None => panic!("File {:?} does not exist", file),
+    }
 }
 
 pub fn once(device: &rodio::Device, file: &'static str, x: f32, y: f32) {

@@ -1,26 +1,33 @@
 use rodio::source::Source;
+use rand::Rng;
 
 use super::{audio, Action, Game};
 
 // whatever you want
 pub struct Moles {
-    left_count: u8,
-    right_count: u8,
-    position: i16,
-    sink: rodio::SpatialSink,
-    score: u8,
-    spawn_time: u16,
-    spawn_rate: u16,
-    game_time: u16,
+ left_count: u8,
+  right_count: u8,
+  position: i16,
+  sink: rodio::SpatialSink,
+  score: u8,
+  spawn_time: u16,
+  spawn_rate: u16,
+  game_time: u16,
+  moles: [bool; 3],
+
 }
 
 impl Game for Moles {
-    fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
-        self.game_time -= 1;
-        self.spawn_time = if self.spawn_time == 0 {
-            self.spawn_rate
-        } else {
-            self.spawn_time - 1
+  fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
+    self.game_time -= 1;
+    self.spawn_time = if self.spawn_time == 0{
+        /*let slot = u8;
+        loop{
+            let slot = rand::thread_rng()gen.range(0,3);*/
+        self.moles[0] = true;
+        self.spawn_rate
+        }else{
+        self.spawn_time - 1
         };
 
         match act {
@@ -39,20 +46,20 @@ impl Game for Moles {
             _ => {}
         };
 
-        println!(
-            "{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}",
-            act,
-            self.left_count,
-            self.right_count,
-            self.score,
-            self.game_time / 100,
-            self.spawn_time
-        );
-
-        self.sink
-            .set_emitter_position([self.position as f32 / 10., 0., 0.]);
-        None
-    }
+     println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {} Moles: {}, {}, {}", 
+             act, 
+             self.left_count, 
+             self.right_count, 
+             self.score, 
+             self.game_time/100, 
+             self.spawn_time,
+             if self.moles[0]{"1"}else{"0"},
+             if self.moles[1]{"1"}else{"0"},
+             if self.moles[2]{"1"}else{"0"});
+    
+    self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);    
+    None
+  }
 }
 
 // Create a new game
@@ -65,19 +72,20 @@ pub fn new(device: &rodio::Device) -> Moles {
     );
 
     let swing_hit = audio("swing_hit.mp3");
-    let source = audio("enemy_spawn.mp3");
+    let source = audio("wall_hit.ogg");
     sink.append(source.repeat_infinite());
 
-    Moles {
-        left_count: 0,
-        right_count: 0,
-        position: 0,
-        sink,
-        score: 0,
-        spawn_time: 5_00,
-        spawn_rate: 5_00,
-        game_time: 60_00,
-    }
+    Moles { 
+        left_count: 0, 
+        right_count: 0, 
+        position: 0, 
+        sink, 
+        score: 0, 
+        moles: [false; 3],
+        spawn_time: 5_00, 
+        spawn_rate: 5_00, 
+        game_time: 60_00}
+
 }
 
 // One-line description
