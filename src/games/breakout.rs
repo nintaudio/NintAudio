@@ -171,10 +171,15 @@ pub fn new(device: &rodio::Device) -> Breakout {
 
 // One-line description
 pub fn about() -> &'static str {
-    "A"
+    "Breakout is a sound-based game where the goal is to destroy bricks with a ball bouncing off a player driven tab."
 }
 
 // Complete description
 pub fn description() -> &'static str {
-    "A long"
+    "The player hears a continuous sound emmited from the ball. The sound comes from either the 
+    front, the left or the right. It varies in intensity so that the player may judge the
+    location of the emmiter (the ball). It  emits a distinct sound on impact with the bouncing
+    tab (controlled by the left/right arrows), the walls or ceiling and the bricks.The player
+    wins when all the bricks are destroyed. By default, the game plane is a 6 by 7 field with 
+    bricks in the 2 upper rows "
 }
