@@ -4,9 +4,6 @@ use super::{once, Action, Game};
 
 // whatever you want
 pub struct Moles {
-    left_count: u8,
-    right_count: u8,
-    position: i16,
     score: i16,
     spawn_time: u16,
     spawn_rate: u16,
@@ -17,11 +14,8 @@ pub struct Moles {
 }
 
 // Create a new game
-pub fn new(device: &rodio::Device) -> Moles {
+pub fn new(_device: &rodio::Device) -> Moles {
     Moles {
-        left_count: 0,
-        right_count: 0,
-        position: 0,
         score: 0,
         moles: [false; 3],
         unspawn: 3,
@@ -36,9 +30,9 @@ impl Game for Moles {
     fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> Option<u32> {
         //Game Timer
         self.game_time -= 1;
-        if self.game_time == 3_00/2 || self.game_time == 2_00/2 || self.game_time == 1_00/2{
+        if self.game_time == 3_00 / 2 || self.game_time == 2_00 / 2 || self.game_time == 1_00 / 2 {
             once(device, "bip.ogg", 0., 0.5);
-        }else if self.game_time == 0 {
+        } else if self.game_time == 0 {
             return Some(self.score as u32);
         }
 
@@ -48,15 +42,11 @@ impl Game for Moles {
             self.spawn = spawn(self.unspawn, &mut self.moles, &device);
 
             //Reduce Timer
-            self.spawn_rate -= if self.spawn_rate > 50{
-                    10
-                }else{
-                    0
-                };
+            self.spawn_rate -= if self.spawn_rate > 50 { 10 } else { 0 };
             19
         } else if self.spawn_time == 0 {
             //Unspawn Old Mole
-            unspawn(self.unspawn, self.spawn, &mut self.moles, &device);
+            unspawn(self.unspawn, &mut self.moles, &device);
             self.unspawn = self.spawn;
             self.spawn_rate
         } else {
@@ -64,33 +54,35 @@ impl Game for Moles {
             self.spawn_time - 1
         };
 
-    match act {
-      Some(Action::Left) => {
-            self.score += action_check(&mut self.moles, 0, &device);
-        },
-      Some(Action::Right) => {
-            self.score += action_check(&mut self.moles, 2, &device);
-        },
-      Some(Action::Up) => {
-            self.score += action_check(&mut self.moles, 1, &device);
-        },
-      _ => {},
-    };
+        match act {
+            Some(Action::Left) => {
+                self.score += action_check(&mut self.moles, 0, &device);
+            }
+            Some(Action::Right) => {
+                self.score += action_check(&mut self.moles, 2, &device);
+            }
+            Some(Action::Up) => {
+                self.score += action_check(&mut self.moles, 1, &device);
+            }
+            _ => {}
+        };
 
-    if self.score < 0{
-        self.score = 0;
+        if self.score < 0 {
+            self.score = 0;
+        }
+
+        println!(
+            "Score: {} Remaning Time: {} SpawnTime: {}",
+            self.score,
+            self.game_time / 50,
+            self.spawn_time
+        );
+        None
     }
-
-    println!("Score: {} Remaning Time: {} SpawnTime: {}",
-             self.score,
-             self.game_time/50,
-             self.spawn_time);
-    None
-  }
 }
 
-fn unspawn(unspawn: u8, spawn: u8, moles: &mut [bool; 3], device: &rodio::Device){
-    if unspawn < 3 && moles[unspawn as usize]{
+fn unspawn(unspawn: u8, moles: &mut [bool; 3], device: &rodio::Device) {
+    if unspawn < 3 && moles[unspawn as usize] {
         moles[unspawn as usize] = false;
         once(device, "enemy_unspawn.ogg", x(unspawn), y(unspawn));
     }
@@ -110,8 +102,8 @@ fn spawn(unspawn: u8, moles: &mut [bool; 3], device: &rodio::Device) -> u8 {
     spawn
 }
 
-fn action_check(moles: &mut [bool;3], emitter: u8, device: &rodio::Device) -> i16{
-    if moles[emitter as usize]{
+fn action_check(moles: &mut [bool; 3], emitter: u8, device: &rodio::Device) -> i16 {
+    if moles[emitter as usize] {
         once(device, "swing_hit.ogg", x(emitter), y(emitter));
         moles[emitter as usize] = false;
         2
@@ -131,10 +123,10 @@ fn x(position: u8) -> f32 {
     }
 }
 
-fn y(position: u8) -> f32{
-    if position == 1{
+fn y(position: u8) -> f32 {
+    if position == 1 {
         1.
-    }else{
+    } else {
         0.
     }
 }

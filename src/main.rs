@@ -1,9 +1,11 @@
+use std::io::{stdout, Write};
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use rust_embed::RustEmbed;
 use gilrs::{Axis, Button, EventType, Gilrs};
+use rust_embed::RustEmbed;
+use termion::raw::IntoRawMode;
 
 mod games;
 mod vessel;
@@ -18,13 +20,34 @@ fn main() {
 
     let (tx, rx) = mpsc::channel();
 
+    let mut stdout = stdout().into_raw_mode().unwrap(); // stdout to raw mode.
+
+    write!(
+        stdout,
+        "{}{}q to exit{}",
+        termion::clear::All,
+        termion::cursor::Goto(1, 1),
+        termion::cursor::Hide
+    )
+    .unwrap();
+    stdout.flush().unwrap();
+
     thread::spawn(move || {
         let mut gilrs = Gilrs::new().unwrap();
         let mut direction = 0.;
 
         loop {
-            vessel::piston::refresh();
-            let act = rx.try_recv().ok()
+            write!(
+                stdout,
+                "{}{}",
+                termion::cursor::Goto(1, 1),
+                termion::clear::CurrentLine
+            ).unwrap();
+            stdout.flush().unwrap();
+
+            let act = rx
+                .try_recv()
+                .ok()
                 .or_else(|| {
                     gilrs.next_event().and_then(|e| {
                         if let EventType::ButtonPressed(Button::South, _) = e.event {
@@ -54,13 +77,11 @@ fn main() {
                 });
 
             if let Some(games::Action::Quit) = act {
-                vessel::piston::clear();
                 println!("Good bye!");
                 std::process::exit(0);
             }
 
             if let Some(score) = game.update(act, &device) {
-                vessel::piston::clear();
                 println!("You made {} point(s)", score);
                 std::process::exit(0);
             }
@@ -70,4 +91,6 @@ fn main() {
     });
 
     vessel::piston::init(&tx);
+    // Show the cursor again before we exit.
+    print!("{}", termion::cursor::Show);
 }
