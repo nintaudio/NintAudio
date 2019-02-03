@@ -1,4 +1,3 @@
-use rodio::source::Source;
 use std::io::Cursor;
 
 use clap::{clap_app, crate_authors, crate_description, crate_version};
