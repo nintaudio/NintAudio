@@ -1,6 +1,6 @@
 use rodio::source::Source;
 
-use super::{Action, Assets, Game};
+use super::{Action, Game, audio};
 
 // whatever you want
 pub struct Breakout {
@@ -13,10 +13,14 @@ pub struct Breakout {
     ball_y: u8,
     hit_r_wall: bool,
     hit_top: bool,
+    time: u32,
 }
 
 impl Game for Breakout {
     fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
+        
+        self.time += 1;
+        
         match act {
             Some(Action::Left) => {
                 self.left_count += 1;
@@ -52,6 +56,7 @@ impl Game for Breakout {
             self.ball_y -= 1;
         }
 
+        println!("{}",self.time);
 
         println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
         self.sink
@@ -68,7 +73,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
-    let source = audio!("music.ogg");
+    let source = audio("music.ogg");
     sink.append(source.repeat_infinite());
 
     Breakout {
@@ -81,6 +86,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
         ball_y: 0,
         hit_top: false,
         hit_r_wall: false,
+        time: 0,
     }
 }
 

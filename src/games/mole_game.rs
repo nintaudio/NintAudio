@@ -1,6 +1,6 @@
 use rodio::source::Source;
 
-use super::{Action, Assets, Game};
+use super::{Action, Game, audio};
 
 // whatever you want
 pub struct Moles {
@@ -66,8 +66,8 @@ pub fn new(device: &rodio::Device) -> Moles {
         [-1., 0., 0.], // right ear
     );
 
-    let swing_hit = audio!("swing_hit.mp3");
-    let source = audio!("enemy_spawn.mp3");
+    let swing_hit = audio("swing_hit.mp3");
+    let source = audio("enemy_spawn.mp3");
     sink.append(source.repeat_infinite());
 
     Moles { 
@@ -80,7 +80,7 @@ pub fn new(device: &rodio::Device) -> Moles {
         spawn_time: 5_00, 
         spawn_rate: 5_00, 
         game_time: 60_00}
-    
+
 }
 
 // One-line description

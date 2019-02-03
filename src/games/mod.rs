@@ -1,30 +1,32 @@
+use std::io::Cursor;
+
 use clap::{clap_app, crate_authors, crate_description, crate_version};
 use rust_embed::RustEmbed;
+use rodio::Decoder;
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
 struct Assets;
 
-#[macro_export]
-macro_rules! audio {
-    ($file: tt) => {
-        rodio::Decoder::new(std::io::Cursor::new(Assets::get($file).unwrap())).unwrap()
-    };
-}
-
-#[macro_export]
-macro_rules! once {
-    ($device: tt, $file: tt) => {
-        rodio::play_once($device, std::io::Cursor::new(Assets::get($file).unwrap()))
-            .unwrap()
-            .detach()
-    };
-}
-
 mod demo; // ça
 mod breakout;
 mod mole_game;
 mod pong;
+
+pub fn audio(file: &str) -> Decoder<Cursor<std::borrow::Cow<'_, [u8]>>> {
+    Decoder::new(Cursor::new(Assets::get(file).unwrap())).unwrap()
+}
+
+pub fn once(device: &rodio::Device, file: &'static str, x: f32, y: f32) {
+    let sink = rodio::Sink::new(device);
+    sink.append(rodio::source::Spatial::new(
+        audio(file),
+        [x, y, 0.],
+        [1., 0., 0.],  // left ear
+        [-1., 0., 0.], // right ear
+    ));
+    sink.detach();
+}
 
 pub trait Game {
     fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> Option<u32>;
