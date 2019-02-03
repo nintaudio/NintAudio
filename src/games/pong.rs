@@ -1,9 +1,9 @@
 use rodio::source::Source;
 use std::ops::AddAssign;
 
-use super::{audio, once, Action, Game};
+use super::{once, Action, Game};
 
-const SPEED: i16 = 5;
+const SPEED: i16 = 1;
 const DEPTH: i16 = 800;
 const WIDTH: i16 = 400;
 
@@ -39,12 +39,12 @@ impl Game for State {
             _ => {}
         };
 
-        if self.position > 40 {
-            self.position = 40;
+        if self.position > WIDTH {
+            self.position = WIDTH;
             once(device, "wall_hit.ogg", 0., 0.);
         }
-        if self.position < -40 {
-            self.position = -40;
+        if self.position < -WIDTH {
+            self.position = -WIDTH;
             once(device, "wall_hit.ogg", 0., 0.);
         }
 
@@ -59,7 +59,6 @@ impl Game for State {
                 f32::from(self.ball.x - self.position),
                 f32::from(self.ball.y),
             );
-
         }
         if self.ball.x < -WIDTH {
             self.ball.x = -WIDTH;
@@ -73,11 +72,14 @@ impl Game for State {
         }
 
         if self.ball.y == 0 {
-            if self.ball.x < self.position - 10 || self.ball.x > self.position + 10 {
+            if self.ball.x < self.position - (WIDTH / 8)
+                || self.ball.x > self.position + (WIDTH / 8)
+            {
                 return Some(self.points);
             }
             self.points += 1;
             self.speed.y = SPEED;
+            once(device, "plus_one_point.mp3", 0., 0.);
         }
 
         if self.ball.y == DEPTH {
@@ -86,8 +88,11 @@ impl Game for State {
         }
 
         println!("{:?} b: {:?} p: {:?}", act, self.ball, self.position);
-        self.sink
-            .set_emitter_position([f32::from(self.ball.x - self.position) / 100., f32::from(self.ball.y) / 100., 0.]);
+        self.sink.set_emitter_position([
+            f32::from(self.ball.x - self.position) / 100.,
+            f32::from(self.ball.y) / 100.,
+            0.,
+        ]);
         None
     }
 }
@@ -97,15 +102,18 @@ pub fn new(device: &rodio::Device) -> State {
     let sink = rodio::SpatialSink::new(
         device,
         [0., 0., 0.],  // object
-        [10., 0., 0.],  // left ear
-        [-10., 0., 0.], // right ear
+        [1., 0., 0.],  // left ear
+        [-1., 0., 0.], // right ear
     );
     let source = rodio::source::SineWave::new(220);
     sink.append(source.repeat_infinite());
 
     State {
         ball: Point { x: 0, y: DEPTH },
-        speed: Point { x: SPEED, y: -SPEED },
+        speed: Point {
+            x: 3 * SPEED,
+            y: -SPEED,
+        },
         position: 0,
         points: 0,
         sink,

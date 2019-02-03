@@ -10,3 +10,4 @@ rodio = "0.8"
 rust-embed = "4.3.0"
 termion = { version = "1", git = "https://gitlab.redox-os.org/Jezza/termion", branch = "windows-support" }
 rand = "0.4.0"
+gilrs = "0.6"

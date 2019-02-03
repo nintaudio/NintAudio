@@ -5,11 +5,13 @@ use std::time::Duration;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+use gilrs::{Gilrs, Button, EventType, Axis};
 
 mod games;
 
 fn main() {
     let device = rodio::default_output_device().unwrap();
+    let mut gilrs = Gilrs::new().unwrap();
     let mut game = games::select(&device);
 
     let keys = stdin().keys(); // stdin keys
@@ -41,14 +43,9 @@ fn main() {
         }
     });
 
+    let mut direction = 0.;
+
     loop {
-        let act = rx.try_recv();
-
-        if let Ok(games::Action::Quit) = act {
-            println!("Good bye!");
-            break;
-        }
-
         write!(
             stdout,
             "{}{}",
@@ -57,7 +54,54 @@ fn main() {
         )
         .unwrap();
 
-        if let Some(score) = game.update(act.ok(), &device) {
+        let act = rx.try_recv().ok()
+            .or_else(|| gilrs.next_event()
+                .and_then(|e| {
+                    if let EventType::ButtonPressed(Button::South, _) = e.event {
+                        Some(games::Action::Fire)
+                    } else if let EventType::ButtonPressed(Button::LeftTrigger2, _) = e.event {
+                        Some(games::Action::Left)
+                    } else if let EventType::ButtonPressed(Button::RightTrigger2, _) = e.event {
+                        Some(games::Action::Right)
+                    } else {
+                        None
+                    }
+                })
+            )
+            .or_else(|| gilrs.gamepads()
+                .next()
+                .and_then(|(_id, gamepad)| {
+                    direction += (gamepad.value(Axis::LeftStickX) * 10.).round() / 10.;
+                    if direction >= 1. {
+                        direction -= 1.;
+                        Some(games::Action::Right)
+                    } else if direction <= -1. {
+                        direction += 1.;
+                        Some(games::Action::Left)
+                    } else {
+                        None
+                    }
+                })
+            )
+            .or_else(|| gilrs.gamepads()
+                .next()
+                .and_then(|(_id, gamepad)| {
+                    if gamepad.is_pressed(Button::RightTrigger2) {
+                        Some(games::Action::Right)
+                    } else if gamepad.is_pressed(Button::LeftTrigger2) {
+                        Some(games::Action::Left)
+                    } else {
+                        None
+                    }
+                })
+            );
+
+        if let Some(games::Action::Quit) = act {
+            println!("Good bye!");
+            break;
+        }
+
+        if let Some(score) = game.update(act, &device) {
             // Show the cursor again before we exit.
             write!(stdout, "{}", termion::cursor::Show).unwrap();
             println!("You made {} point(s)", score);
@@ -65,6 +109,6 @@ fn main() {
         }
 
         stdout.flush().unwrap();
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_millis(20));
     }
 }
