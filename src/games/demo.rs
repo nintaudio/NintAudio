@@ -1,6 +1,6 @@
 use rodio::source::Source;
 
-use super::{Action, Game, audio};
+use super::{audio, Action, Game};
 
 // whatever you want
 pub struct State {

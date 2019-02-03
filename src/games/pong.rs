@@ -1,15 +1,13 @@
-use std::ops::AddAssign;
 use rodio::source::Source;
+use std::ops::AddAssign;
 
-use super::{Action, Game, once};
+use super::{once, Action, Game};
 
 const SPEED: i16 = 1;
 const DEPTH: i16 = 800;
 const WIDTH: i16 = 400;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(Copy)]
+#[derive(Debug, Clone, Copy)]
 struct Point {
     x: i16,
     y: i16,
@@ -55,16 +53,28 @@ impl Game for State {
         if self.ball.x > WIDTH {
             self.ball.x = WIDTH;
             self.speed.x = -self.speed.x;
-            once(device, "wall_hit.ogg", f32::from(self.ball.x - self.position) / 100., f32::from(self.ball.y) / 100.);
+            once(
+                device,
+                "wall_hit.ogg",
+                f32::from(self.ball.x - self.position),
+                f32::from(self.ball.y),
+            );
         }
         if self.ball.x < -WIDTH {
             self.ball.x = -WIDTH;
             self.speed.x = -self.speed.x;
-            once(device, "wall_hit.ogg", f32::from(self.ball.x - self.position) / 100., f32::from(self.ball.y) / 100.);
+            once(
+                device,
+                "wall_hit.ogg",
+                f32::from(self.ball.x - self.position),
+                f32::from(self.ball.y),
+            );
         }
 
         if self.ball.y == 0 {
-            if self.ball.x < self.position - (WIDTH / 8) || self.ball.x > self.position + (WIDTH / 8) {
+            if self.ball.x < self.position - (WIDTH / 8)
+                || self.ball.x > self.position + (WIDTH / 8)
+            {
                 return Some(self.points);
             }
             self.points += 1;
@@ -78,8 +88,11 @@ impl Game for State {
         }
 
         println!("{:?} b: {:?} p: {:?}", act, self.ball, self.position);
-        self.sink
-            .set_emitter_position([f32::from(self.ball.x - self.position) / 100., f32::from(self.ball.y) / 100., 0.]);
+        self.sink.set_emitter_position([
+            f32::from(self.ball.x - self.position) / 100.,
+            f32::from(self.ball.y) / 100.,
+            0.,
+        ]);
         None
     }
 }
@@ -97,7 +110,10 @@ pub fn new(device: &rodio::Device) -> State {
 
     State {
         ball: Point { x: 0, y: DEPTH },
-        speed: Point { x: 3 * SPEED, y: -SPEED },
+        speed: Point {
+            x: 3 * SPEED,
+            y: -SPEED,
+        },
         position: 0,
         points: 0,
         sink,
