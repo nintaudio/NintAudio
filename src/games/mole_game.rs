@@ -9,7 +9,7 @@ pub struct Moles {
   right_count: u8,
   position: i16,
   sink: rodio::SpatialSink,
-  score: u8,
+  score: i16,
   spawn_time: u16,
   spawn_rate: u16,
   game_time: u16,
@@ -25,12 +25,14 @@ impl Game for Moles {
     self.spawn_time = if self.spawn_time == 0{
         //Remove last mole
         self.moles[self.last_mole as usize] = false;
+        //unspawn sound
 
         loop{
             let slot = rand::thread_rng().gen_range(0,3) as usize;
             if !self.moles[slot] && (slot as u8) != self.last_mole{
                 self.moles[slot] = true;
                 self.last_mole = slot as u8;
+                //spawn sound
                 break;
             }
         }
@@ -48,19 +50,20 @@ impl Game for Moles {
 
     match act {
       Some(Action::Left) => {
-            self.left_count += 1;
-            self.position -= 1;
-            //
+            self.score += action_check(self.last_mole, 0);
         },
       Some(Action::Right) => {
-            self.right_count += 1;
-            self.position += 1;
+            self.score += action_check(self.last_mole, 2);
         },
       Some(Action::Up) => {
-            self.score += 1;
+            self.score += action_check(self.last_mole, 1);
         },
       _ => {},
     };
+
+    if self.score < 0{
+        self.score = 0;
+    }
 
     println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {} Moles: {}, {}, {} Last: {}", 
              act, 
@@ -106,10 +109,13 @@ pub fn new(device: &rodio::Device) -> Moles {
 
 }
 
-/*fn random_number() -> u8{
-    let slot = rand::thread_rng().gen_range(0,3);
-    slot
-}*/
+fn action_check(last_mole: u8, slot: u8) -> i16{
+    if last_mole == slot{
+        2
+    }else{
+        -1
+    }
+}
 
 // One-line description
 pub fn about() -> &'static str {
