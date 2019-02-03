@@ -51,10 +51,11 @@ impl Game for Breakout {
                     f32::from(self.ball_y) / 2.,
                 );
             }
-            if self.ball_y > 4 {
-                if self.bricks[usize::from(self.ball_y) - 5][usize::from(self.ball_x)] == true {
+            if self.ball_y > 4 && self.ball_y < 7 {
+                println!("{} {}", self.ball_y, self.ball_x);
+                if self.bricks[usize::from(self.ball_x)][usize::from(self.ball_y - 5)] == true {
                     self.points += 1;
-                    self.bricks[usize::from(self.ball_y) - 5][usize::from(self.ball_x)] = false;
+                    self.bricks[usize::from(self.ball_x)][usize::from(self.ball_y - 5)] = false;
                     self.hit_top = true;
                     once(
                         device,
@@ -72,6 +73,7 @@ impl Game for Breakout {
                     (f32::from(self.ball_x) - f32::from(self.position)) / 2.,
                     f32::from(self.ball_y) / 2.,
                 );
+
             } else if self.ball_y == 0 && self.position == self.ball_x {
                 self.hit_top = false;
                 once(

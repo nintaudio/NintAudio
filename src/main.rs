@@ -49,14 +49,14 @@ fn main() {
             break;
         }
 
-        write!(
+/*        write!(
             stdout,
             "{}{}",
             termion::cursor::Goto(1, 1),
             termion::clear::CurrentLine
         )
         .unwrap();
-
+*/
         if let Some(score) = game.update(act.ok(), &device) {
             // Show the cursor again before we exit.
             write!(stdout, "{}", termion::cursor::Show).unwrap();
