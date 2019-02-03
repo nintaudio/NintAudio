@@ -79,7 +79,7 @@ impl Game for State {
             }
             self.points += 1;
             self.speed.y = SPEED;
-            once(device, "plus_one_point.mp3", 0., 0.);
+            once(device, "plus_one_point.ogg", 0., 0.);
         }
 
         if self.ball.y == DEPTH {
@@ -87,7 +87,6 @@ impl Game for State {
             once(device, "wall_hit.ogg", 0., 0.);
         }
 
-        println!("{:?} b: {:?} p: {:?}", act, self.ball, self.position);
         self.sink.set_emitter_position([
             f32::from(self.ball.x - self.position) / 100.,
             f32::from(self.ball.y) / 100.,

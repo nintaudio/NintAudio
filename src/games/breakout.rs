@@ -21,6 +21,7 @@ impl Game for Breakout {
     fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> Option<u32> {
         self.time += 1;
 
+// Register input for movement of the bouncing tab
         match act {
             Some(Action::Left) => {
                 self.left_count += 1;
@@ -33,15 +34,23 @@ impl Game for Breakout {
             _ => {}
         };
 
+// Actions to be taken at every 50 tiks (move the ball, destroy bricks, emmit ponctual sound, et
         if self.time % 50 == 0 {
+
+// Establish boolean parameter to true if the ball hit the right wall in order to change the
+// direction of said ball
             if self.ball_x == 5 {
                 self.hit_r_wall = true;
+
+// Emmit sound when wall is hit
                 once(
                     device,
                     "hit_wall.ogg",
                     (f32::from(self.ball_x) - f32::from(self.position)) / 2.,
                     f32::from(self.ball_y) / 2.,
                 );
+
+// Emmit sound and set boolean parameter if left wall is hit
             } else if self.ball_x == 0 {
                 self.hit_r_wall = false;
                 once(
@@ -51,6 +60,8 @@ impl Game for Breakout {
                     f32::from(self.ball_y) / 2.,
                 );
             }
+
+// When the ball is in the upper region of the game plane where the bricks are located,
             if self.ball_y > 4 && self.ball_y < 7 {
                 println!("{} {}", self.ball_y, self.ball_x);
                 if self.bricks[usize::from(self.ball_x)][usize::from(self.ball_y - 5)] == true {
@@ -65,6 +76,9 @@ impl Game for Breakout {
                     );
                 }
             }
+
+// Determining wether or not he ball hit the top and emmiting sound id top hit.
+
             if self.ball_y == 6 {
                 self.hit_top = true;
                 once(
@@ -74,6 +88,8 @@ impl Game for Breakout {
                     f32::from(self.ball_y) / 2.,
                 );
 
+// When the ball reach the bottom, determine if the player bouncing tab is
+// at the ball's location (continue) and stop game if the player missed.
             } else if self.ball_y == 0 && self.position == self.ball_x {
                 self.hit_top = false;
                 once(
@@ -92,12 +108,17 @@ impl Game for Breakout {
                 );
                 return Some(self.points.into());
             }
-            
+
+// Time based trigger to determine if the player destroyed all of the available
+// bricks (upper 2 rows)
+
             if self.time == 2800 {
                 println!("You won!");
                 return Some(self.points.into());
             }
 
+// Execute movement of the ball in x/y coordinates depending on boolean hit
+// right wall or top
             if !self.hit_r_wall {
                 self.ball_x += 1;
             } else {
@@ -109,7 +130,8 @@ impl Game for Breakout {
                 self.ball_y -= 1;
             }
 
-
+// Sets the position of the sound source according to the x and y coordinates
+// of the ball relatively to the oberver
             self.sink.set_emitter_position([
                 (f32::from(self.ball_x) - f32::from(self.position)) / 2.,
                 ((f32::from(self.ball_y)) / 2.),
