@@ -1,28 +1,33 @@
 const INITIAL_SIZE: (u32, u32) = (200, 200);
 
 use std::rc::Rc;
+use std::cell::RefCell;
 
 use ai_behavior::{Action, Sequence};
 use image::png;
 use image::{ImageBuffer, ImageDecoder};
 use piston_window::{OpenGL, PistonWindow, PressEvent, ResizeEvent, Size, Texture, TextureSettings, WindowSettings, Window, Input};
 use sprite::*;
-use std::sync::mpsc;
-use std::thread;
-use super::super::games;
+use uuid::Uuid;
 
-use super::super::Assets;
+use super::super::{games, Assets};
 
-pub fn init () -> std::sync::mpsc::Receiver<games::Action> {
-    let (width, height) = INITIAL_SIZE;
-    let mut window: PistonWindow = WindowSettings::new("piston: sprite", (width, height))
+pub struct WindowBackend {
+    window: RefCell<PistonWindow>,
+    scene: RefCell<Scene<Texture<gfx_device_gl::Resources>>>,
+    id: Uuid,
+}
+
+pub fn init() -> WindowBackend {
+    let mut window: PistonWindow = WindowSettings::new("nintaudio", INITIAL_SIZE)
         .exit_on_esc(true)
         .opengl(OpenGL::V3_2)
         .build()
         .unwrap();
 
     let mut scene = Scene::new();
-    let codec = png::PNGDecoder::new(&*Assets::get("logo.png").unwrap()).unwrap();
+    let logo = Assets::get("logo.png").unwrap();
+    let codec = png::PNGDecoder::new(&*logo).unwrap();
     let (w, h) = codec.dimensions();
     let buf = codec.read_image().unwrap();
     let img = ImageBuffer::from_raw(w as u32, h as u32, buf).unwrap();
@@ -30,7 +35,7 @@ pub fn init () -> std::sync::mpsc::Receiver<games::Action> {
     let tex =
         Rc::new(Texture::from_image(&mut window.factory, &img, &TextureSettings::new()).unwrap());
     let mut sprite = Sprite::from_texture(tex.clone());
-    let Size { mut width, mut height } = window.size();
+    let Size { width, height } = window.size();
     sprite.set_position(f64::from(width) / 2., -f64::from(h as u32));
     sprite.set_scale(0.5, 0.5);
 
@@ -40,11 +45,11 @@ pub fn init () -> std::sync::mpsc::Receiver<games::Action> {
     let seq = Sequence(vec![
         Action(Ease(
             EaseFunction::BounceOut,
-            Box::new(MoveTo(1., f64::from(width) / 2., f64::from(height) / 2.)),
+            Box::new(MoveTo(0.1, f64::from(width) / 2., f64::from(height) / 2.)),
         )),
         Action(Ease(
             EaseFunction::CubicOut,
-            Box::new(ScaleTo(1., 1., 1.)),
+            Box::new(ScaleTo(0.1, 1., 1.)),
         )),
     ]);
     scene.run(id, &seq);
@@ -52,42 +57,57 @@ pub fn init () -> std::sync::mpsc::Receiver<games::Action> {
     // This animation and the one above can run in parallel.
     let rotate = Action(Ease(
         EaseFunction::ExponentialInOut,
-        Box::new(RotateTo(2.0, 360.0)),
+        Box::new(RotateTo(0.2, 360.0)),
     ));
     scene.run(id, &rotate);
 
-    let (tx, rx) = mpsc::channel();
+    WindowBackend {
+        window: RefCell::new(window),
+        scene: RefCell::new(scene),
+        id,
+    }
+}
 
-    thread::spawn(move || {
-            while let Some(e) = window.next() {
-        scene.event(&e);
+impl super::Vessel for WindowBackend {
+    fn refresh(&mut self) -> Option<games::Action> {
+        let mut scene = self.scene.borrow_mut();
+        let mut window = self.window.borrow_mut();
 
-        window.draw_2d(&e, |c, g| {
-            piston_window::clear([1.0, 1.0, 1.0, 1.0], g);
-            scene.draw(c.transform, g);
-        });
+        match window.next() {
+            None => Some(games::Action::Quit),
+            Some(e) => {
+                scene.event(&e);
 
-        if let Some(key) = e.press_args() {
-            println!("{:?}", key);
-        }
+                window.draw_2d(&e, |c, g| {
+                    piston_window::clear([10.0, 10.0, 1.0, 1.0], g);
+                    scene.draw(c.transform, g);
+                });
 
-        if let Some([w, h]) = e.resize_args() {
-            width = w;
-            height = h;
-            // This animation and the one above can run in parallel.
-            let recenter = Action(Ease(
-                EaseFunction::ExponentialInOut,
-                Box::new(MoveTo(1., f64::from(width) / 2., f64::from(height) / 2.)),
-            ));
-            scene.run(id, &recenter);
-        }
+                if let Some(key) = e.press_args() {
+                    println!("{:?}", key);
+                }
 
-        let i: Option<Input> = e.into();
+                if let Some([w, h]) = e.resize_args() {
+                    // This animation and the one above can run in parallel.
+                    let recenter = Action(Ease(
+                        EaseFunction::ExponentialInOut,
+                        Box::new(MoveTo(1., f64::from(w) / 2., f64::from(h) / 2.)),
+                    ));
+                    scene.run(self.id, &recenter);
+                }
 
-        if let Some(event) = i {
-            println!("{:?}", event);
+                let i: Option<Input> = e.into();
+
+                if let Some(event) = i {
+                    println!("{:?}", event);
+                }
+                Some(games::Action::Left)
+            }
         }
     }
-});
-rx
+
+    // Show the cursor again before we exit.
+    fn clear (&self) {
+    }
 }
+

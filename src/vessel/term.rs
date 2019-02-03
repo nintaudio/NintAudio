@@ -38,17 +38,21 @@ pub fn init () -> std::sync::mpsc::Receiver<games::Action> {
     rx
 }
 
-pub fn clear () {
-    write!(
-                stdout(),
-                "{}{}",
-                termion::cursor::Goto(1, 1),
-                termion::clear::CurrentLine
-            )
-            .unwrap();
-}
+impl super::Vessel for std::sync::mpsc::Receiver<games::Action> {
+    fn refresh(&mut self) -> Option<games::Action> {
+        write!(
+            stdout(),
+            "{}{}",
+            termion::cursor::Goto(1, 1),
+            termion::clear::CurrentLine
+        )
+        .unwrap();
+        stdout().flush().unwrap();
+        self.try_recv().ok()
+    }
 
-// Show the cursor again before we exit.
-pub fn cursor () {
-    write!(stdout(), "{}", termion::cursor::Show).unwrap();
+    // Show the cursor again before we exit.
+    fn clear (&self) {
+        write!(stdout(), "{}", termion::cursor::Show).unwrap();
+    }
 }
