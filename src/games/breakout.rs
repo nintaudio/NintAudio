@@ -1,6 +1,6 @@
 use rodio::source::Source;
 
-use super::{Action, Assets, Game};
+use super::{Action, Game, audio};
 
 // whatever you want
 pub struct Breakout {
@@ -73,7 +73,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
-    let source = audio!("music.ogg");
+    let source = audio("music.ogg");
     sink.append(source.repeat_infinite());
 
     Breakout {

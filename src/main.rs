@@ -57,12 +57,14 @@ fn main() {
         )
         .unwrap();
 
-        game.update(act.ok(), &device);
+        if let Some(score) = game.update(act.ok(), &device) {
+            // Show the cursor again before we exit.
+            write!(stdout, "{}", termion::cursor::Show).unwrap();
+            println!("You made {} point(s)", score);
+            break;
+        }
 
         stdout.flush().unwrap();
         thread::sleep(Duration::from_millis(10));
     }
-
-    // Show the cursor again before we exit.
-    write!(stdout, "{}", termion::cursor::Show).unwrap();
 }

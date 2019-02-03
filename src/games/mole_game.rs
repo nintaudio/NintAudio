@@ -1,6 +1,6 @@
 use rodio::source::Source;
 
-use super::{Action, Assets, Game};
+use super::{Action, Game, audio};
 
 // whatever you want
 pub struct Moles {
@@ -40,15 +40,15 @@ impl Game for Moles {
       _ => {},
     };
 
-    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}", 
-             act, 
-             self.left_count, 
-             self.right_count, 
-             self.score, 
-             self.game_time/100, 
+    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}",
+             act,
+             self.left_count,
+             self.right_count,
+             self.score,
+             self.game_time/100,
              self.spawn_time);
-    
-    self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);    
+
+    self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
     None
   }
 }
@@ -62,20 +62,20 @@ pub fn new(device: &rodio::Device) -> Moles {
         [-1., 0., 0.], // right ear
     );
 
-    let swing_hit = audio!("swing_hit.mp3");
-    let source = audio!("enemy_spawn.mp3");
+    let swing_hit = audio("swing_hit.mp3");
+    let source = audio("enemy_spawn.mp3");
     sink.append(source.repeat_infinite());
 
-    Moles { 
-        left_count: 0, 
-        right_count: 0, 
-        position: 0, 
-        sink, 
-        score: 0, 
-        spawn_time: 5_00, 
-        spawn_rate: 5_00, 
+    Moles {
+        left_count: 0,
+        right_count: 0,
+        position: 0,
+        sink,
+        score: 0,
+        spawn_time: 5_00,
+        spawn_rate: 5_00,
         game_time: 60_00}
-    
+
 }
 
 // One-line description
