@@ -18,23 +18,39 @@ fn main() {
     let (tx, rx) = mpsc::channel();
 
     thread::spawn(move || loop {
-        vessel::piston::refresh();
+        if cfg!(piston) {
+            vessel::piston::refresh();
+        } else {
+            vessel::term::refresh();
+        }
         let act = rx.try_recv().ok();
 
         if let Some(games::Action::Quit) = act {
-            vessel::piston::clear();
+            if cfg!(piston) {
+                vessel::piston::clear();
+            } else {
+                vessel::term::clear();
+            }
             println!("Good bye!");
             std::process::exit(0);
         }
 
         if let Some(score) = game.update(act, &device) {
-            vessel::piston::clear();
+            if cfg!(piston) {
+                vessel::piston::clear();
+            } else {
+                vessel::term::clear();
+            }
             println!("You made {} point(s)", score);
             std::process::exit(0);
         }
 
         thread::sleep(Duration::from_millis(20));
     });
-
-    vessel::piston::init(tx);
+    
+    if cfg!(piston) {
+        vessel::piston::init(tx);
+    } else {
+        vessel::term::init(tx);
+    }
 }
