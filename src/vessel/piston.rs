@@ -6,17 +6,14 @@ use ai_behavior::{Action, Sequence};
 use image::png;
 use image::{ImageBuffer, ImageDecoder};
 use piston_window::{
-    Input, OpenGL, PistonWindow, PressEvent, ResizeEvent, Size, Texture, TextureSettings, Window, Key,
+    OpenGL, PistonWindow, PressEvent, ResizeEvent, Size, Texture, TextureSettings, Window, Key,
     WindowSettings,
 };
 use sprite::*;
-use gilrs::{Axis, Button, EventType, Gilrs};
 
 use super::super::{games, Assets};
 
-pub fn init(tx: std::sync::mpsc::Sender<games::Action>) {
-    let mut gilrs = Gilrs::new().unwrap();
-    let mut direction = 0.;
+pub fn init(tx: &std::sync::mpsc::Sender<games::Action>) {
     let mut window: PistonWindow = WindowSettings::new("nintaudio", INITIAL_SIZE)
         .exit_on_esc(true)
         .opengl(OpenGL::V3_2)
@@ -34,7 +31,7 @@ pub fn init(tx: std::sync::mpsc::Sender<games::Action>) {
         Rc::new(Texture::from_image(&mut window.factory, &img, &TextureSettings::new()).unwrap());
     let mut sprite = Sprite::from_texture(tex.clone());
     let Size { width, height } = window.size();
-    sprite.set_position(f64::from(width) / 2., -f64::from(h as u32));
+    sprite.set_position(width / 2., -f64::from(h as u32));
     sprite.set_scale(0.5, 0.5);
 
     let id = scene.add_child(sprite);
@@ -43,7 +40,7 @@ pub fn init(tx: std::sync::mpsc::Sender<games::Action>) {
     let seq = Sequence(vec![
         Action(Ease(
             EaseFunction::BounceOut,
-            Box::new(MoveTo(1., f64::from(width) / 2., f64::from(height) / 2.)),
+            Box::new(MoveTo(1., width / 2., height / 2.)),
         )),
         Action(Ease(EaseFunction::CubicOut, Box::new(ScaleTo(1., 1., 1.)))),
     ]);
@@ -68,7 +65,7 @@ pub fn init(tx: std::sync::mpsc::Sender<games::Action>) {
             // This animation and the one above can run in parallel.
             let recenter = Action(Ease(
                 EaseFunction::ExponentialInOut,
-                Box::new(MoveTo(1., f64::from(w) / 2., f64::from(h) / 2.)),
+                Box::new(MoveTo(1., w / 2., h / 2.)),
             ));
             scene.run(id, &recenter);
         }
@@ -86,33 +83,6 @@ pub fn init(tx: std::sync::mpsc::Sender<games::Action>) {
             },
             _ => None,
         }
-        .or_else(|| {
-            gilrs.next_event().and_then(|e| {
-                if let EventType::ButtonPressed(Button::South, _) = e.event {
-                    Some(games::Action::Fire)
-                } else if let EventType::ButtonPressed(Button::LeftTrigger2, _) = e.event {
-                    Some(games::Action::Left)
-                } else if let EventType::ButtonPressed(Button::RightTrigger2, _) = e.event {
-                    Some(games::Action::Right)
-                } else {
-                    None
-                }
-            })
-        })
-        .or_else(|| {
-            gilrs.gamepads().next().and_then(|(_id, gamepad)| {
-                direction += (gamepad.value(Axis::LeftStickX) * 10.).round() / 10.;
-                if direction >= 1. {
-                    direction -= 1.;
-                    Some(games::Action::Right)
-                } else if direction <= -1. {
-                    direction += 1.;
-                    Some(games::Action::Left)
-                } else {
-                    None
-                }
-            })
-        })
         .and_then(|m| Some(tx.send(m).unwrap()));
     }
 }

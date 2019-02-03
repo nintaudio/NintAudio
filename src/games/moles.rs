@@ -1,7 +1,6 @@
 use rand::Rng;
-use rodio::source::Source;
 
-use super::{audio, once, Action, Game};
+use super::{once, Action, Game};
 
 // whatever you want
 pub struct Moles {
@@ -50,7 +49,7 @@ impl Game for Moles {
 
             //Reduce Timer
             self.spawn_rate -= if self.spawn_rate > 50{
-                    10 
+                    10
                 }else{
                     0
                 };
@@ -82,9 +81,9 @@ impl Game for Moles {
         self.score = 0;
     }
 
-    println!("Score: {} Remaning Time: {} SpawnTime: {}", 
-             self.score, 
-             self.game_time/50, 
+    println!("Score: {} Remaning Time: {} SpawnTime: {}",
+             self.score,
+             self.game_time/50,
              self.spawn_time);
     None
   }
@@ -113,7 +112,7 @@ fn spawn(unspawn: u8, moles: &mut [bool; 3], device: &rodio::Device) -> u8 {
 
 fn action_check(moles: &mut [bool;3], emitter: u8, device: &rodio::Device) -> i16{
     if moles[emitter as usize]{
-        once(device, "swing_hit.ogg", x(emitter), y(emitter)); 
+        once(device, "swing_hit.ogg", x(emitter), y(emitter));
         moles[emitter as usize] = false;
         2
     } else {
