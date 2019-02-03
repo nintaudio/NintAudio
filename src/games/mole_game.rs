@@ -1,4 +1,5 @@
 use rodio::source::Source;
+use rand::Rng;
 
 use super::{Action, Game, audio};
 
@@ -20,6 +21,10 @@ impl Game for Moles {
   fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
     self.game_time -= 1;
     self.spawn_time = if self.spawn_time == 0{
+        /*let slot = u8;
+        loop{
+            let slot = rand::thread_rng()gen.range(0,3);*/
+        self.moles[0] = true;
         self.spawn_rate
         }else{
         self.spawn_time - 1
@@ -49,8 +54,8 @@ impl Game for Moles {
              self.game_time/100, 
              self.spawn_time,
              if self.moles[0]{"1"}else{"0"},
-             self.moles[1],
-             self.moles[2]);
+             if self.moles[1]{"1"}else{"0"},
+             if self.moles[2]{"1"}else{"0"});
     
     self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);    
     None
@@ -67,7 +72,7 @@ pub fn new(device: &rodio::Device) -> Moles {
     );
 
     let swing_hit = audio("swing_hit.mp3");
-    let source = audio("enemy_spawn.mp3");
+    let source = audio("wall_hit.ogg");
     sink.append(source.repeat_infinite());
 
     Moles { 
