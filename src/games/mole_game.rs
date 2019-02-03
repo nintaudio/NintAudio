@@ -20,13 +20,26 @@ pub struct Moles {
 impl Game for Moles {
   fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
     self.game_time -= 1;
+
     self.spawn_time = if self.spawn_time == 0{
-        /*let slot = u8;
+        let slot: u8;
         loop{
-            let slot = rand::thread_rng()gen.range(0,3);*/
-        self.moles[0] = true;
+            let slot = rand::thread_rng().gen_range(0,3);
+            if !self.moles[slot] || self.moles == [true; 3]{
+                self.moles[slot] = true;
+                break;
+            }
+            //let slot = rand
+        }
+        self.spawn_rate -= if self.spawn_rate > 25{
+                1
+            }else{
+                0
+            };
+        //Return New Spawn Time
         self.spawn_rate
         }else{
+        //Decrease Time
         self.spawn_time - 1
         };
 
@@ -72,7 +85,7 @@ pub fn new(device: &rodio::Device) -> Moles {
     );
 
     let swing_hit = audio("swing_hit.mp3");
-    let source = audio("wall_hit.ogg");
+    let source = audio("object_movement.mp3");
     sink.append(source.repeat_infinite());
 
     Moles { 
@@ -82,8 +95,8 @@ pub fn new(device: &rodio::Device) -> Moles {
         sink, 
         score: 0, 
         moles: [false; 3],
-        spawn_time: 5_00, 
-        spawn_rate: 5_00, 
+        spawn_time: 2_00, 
+        spawn_rate: 1_00, 
         game_time: 60_00}
 
 }
