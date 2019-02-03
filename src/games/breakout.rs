@@ -8,7 +8,7 @@ pub struct Breakout {
     right_count: u8,
     position: u8,
     sink: rodio::SpatialSink,
-    bricks: [[bool; 3]; 5],
+    bricks: [[bool; 3]; 6],
     ball_x: u8,
     ball_y: u8,
     hit_r_wall: bool,
@@ -34,7 +34,7 @@ impl Game for Breakout {
         };
 
         if self.time % 50 == 0 {
-            if self.ball_x == 4 {
+            if self.ball_x == 5 {
                 self.hit_r_wall = true;
                 once(
                     device,
@@ -84,13 +84,18 @@ impl Game for Breakout {
                 );
             } else if self.ball_y == 0 {
                 println!("You lost.");
-                return Some(self.points.into());
                 once(
                     device,
                     "Sounds_NintAudio/entity_passing_by.mp3",
                     (f32::from(self.ball_x) - f32::from(self.position)) / 2.,
                     f32::from(self.ball_y) / 2.,
                 );
+                return Some(self.points.into());
+            }
+            
+            if self.time == 2800 {
+                println!("You won!");
+                return Some(self.points.into());
             }
 
             if !self.hit_r_wall {
@@ -104,9 +109,6 @@ impl Game for Breakout {
                 self.ball_y -= 1;
             }
 
-            println!("ball_x: {} ball_y: {}", self.ball_x, self.ball_y);
-
-            println!("{}", self.time);
 
             self.sink.set_emitter_position([
                 (f32::from(self.ball_x) - f32::from(self.position)) / 2.,
@@ -115,7 +117,6 @@ impl Game for Breakout {
             ]);
         }
 
-        //     println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
         None
     }
 }
@@ -128,7 +129,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
-    let source = audio("pi.mp3");
+    let source = audio("object_movement_big.ogg");
 
     sink.append(source.repeat_infinite());
 
@@ -137,7 +138,7 @@ pub fn new(device: &rodio::Device) -> Breakout {
         right_count: 0,
         position: 2,
         sink,
-        bricks: [[true; 3]; 5],
+        bricks: [[true; 3]; 6],
         ball_x: 2,
         ball_y: 0,
         hit_top: false,
