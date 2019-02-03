@@ -25,7 +25,7 @@ impl Game for State {
         };
         println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
         self.sink
-            .set_emitter_position([self.position as f32 / 10., 0., 0.]);
+            .set_emitter_position([f32::from(self.position) / 10., 0., 0.]);
         None
     }
 }

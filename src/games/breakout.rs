@@ -64,7 +64,7 @@ impl Game for Breakout {
 // When the ball is in the upper region of the game plane where the bricks are located,
             if self.ball_y > 4 && self.ball_y < 7 {
                 println!("{} {}", self.ball_y, self.ball_x);
-                if self.bricks[usize::from(self.ball_x)][usize::from(self.ball_y - 5)] == true {
+                if self.bricks[usize::from(self.ball_x)][usize::from(self.ball_y - 5)] {
                     self.points += 1;
                     self.bricks[usize::from(self.ball_x)][usize::from(self.ball_y - 5)] = false;
                     self.hit_top = true;

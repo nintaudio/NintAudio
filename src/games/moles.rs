@@ -1,7 +1,6 @@
 use rand::Rng;
-use rodio::source::Source;
 
-use super::{audio, once, Action, Game};
+use super::{once, Action, Game};
 
 // whatever you want
 pub struct Moles {
@@ -77,11 +76,11 @@ impl Game for Moles {
         }
 
         println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {} Moles: {}, {}, {} Unspawn: {} Spawn: {}",
-             act, 
-             self.left_count, 
-             self.right_count, 
-             self.score, 
-             self.game_time/50, 
+             act,
+             self.left_count,
+             self.right_count,
+             self.score,
+             self.game_time/50,
              self.spawn_time,
              if self.moles[0]{"1"}else{"0"},
              if self.moles[1]{"1"}else{"0"},
