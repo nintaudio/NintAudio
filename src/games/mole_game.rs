@@ -1,11 +1,11 @@
 use rodio::source::Source;
 use rand::Rng;
 
-use super::{audio, Action, Game};
+use super::{Action, Game, audio};
 
 // whatever you want
 pub struct Moles {
- left_count: u8,
+  left_count: u8,
   right_count: u8,
   position: i16,
   sink: rodio::SpatialSink,
@@ -14,6 +14,7 @@ pub struct Moles {
   spawn_rate: u16,
   game_time: u16,
   moles: [bool; 3],
+  last_mole: u8,
 
 }
 
@@ -22,14 +23,16 @@ impl Game for Moles {
     self.game_time -= 1;
 
     self.spawn_time = if self.spawn_time == 0{
-        let slot: u8;
+        //Remove last mole
+        self.moles[self.last_mole as usize] = false;
+
         loop{
-            let slot = rand::thread_rng().gen_range(0,3);
-            if !self.moles[slot] || self.moles == [true; 3]{
+            let slot = rand::thread_rng().gen_range(0,3) as usize;
+            if !self.moles[slot] && (slot as u8) != self.last_mole{
                 self.moles[slot] = true;
+                self.last_mole = slot as u8;
                 break;
             }
-            //let slot = rand
         }
         self.spawn_rate -= if self.spawn_rate > 25{
                 1
@@ -43,23 +46,23 @@ impl Game for Moles {
         self.spawn_time - 1
         };
 
-        match act {
-            Some(Action::Left) => {
-                self.left_count += 1;
-                self.position -= 1;
-                //
-            }
-            Some(Action::Right) => {
-                self.right_count += 1;
-                self.position += 1;
-            }
-            Some(Action::Up) => {
-                self.score += 1;
-            }
-            _ => {}
-        };
+    match act {
+      Some(Action::Left) => {
+            self.left_count += 1;
+            self.position -= 1;
+            //
+        },
+      Some(Action::Right) => {
+            self.right_count += 1;
+            self.position += 1;
+        },
+      Some(Action::Up) => {
+            self.score += 1;
+        },
+      _ => {},
+    };
 
-     println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {} Moles: {}, {}, {}", 
+    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {} Moles: {}, {}, {} Last: {}", 
              act, 
              self.left_count, 
              self.right_count, 
@@ -68,7 +71,8 @@ impl Game for Moles {
              self.spawn_time,
              if self.moles[0]{"1"}else{"0"},
              if self.moles[1]{"1"}else{"0"},
-             if self.moles[2]{"1"}else{"0"});
+             if self.moles[2]{"1"}else{"0"},
+             self.last_mole);
     
     self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);    
     None
@@ -95,11 +99,17 @@ pub fn new(device: &rodio::Device) -> Moles {
         sink, 
         score: 0, 
         moles: [false; 3],
+        last_mole: 1,
         spawn_time: 2_00, 
         spawn_rate: 1_00, 
         game_time: 60_00}
 
 }
+
+/*fn random_number() -> u8{
+    let slot = rand::thread_rng().gen_range(0,3);
+    slot
+}*/
 
 // One-line description
 pub fn about() -> &'static str {
