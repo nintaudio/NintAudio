@@ -73,7 +73,6 @@ impl Game for Breakout {
                     (f32::from(self.ball_x) - f32::from(self.position)) / 2.,
                     f32::from(self.ball_y) / 2.,
                 );
-
             } else if self.ball_y == 0 && self.position == self.ball_x {
                 self.hit_top = false;
                 once(
@@ -92,7 +91,7 @@ impl Game for Breakout {
                 );
                 return Some(self.points.into());
             }
-            
+
             if self.time == 2800 {
                 println!("You won!");
                 return Some(self.points.into());
@@ -108,7 +107,6 @@ impl Game for Breakout {
             } else {
                 self.ball_y -= 1;
             }
-
 
             self.sink.set_emitter_position([
                 (f32::from(self.ball_x) - f32::from(self.position)) / 2.,

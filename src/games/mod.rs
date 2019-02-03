@@ -28,7 +28,7 @@ pub fn once(device: &rodio::Device, file: &'static str, x: f32, y: f32) {
     sink.detach();
 }
 
-pub trait Game {
+pub trait Game: Send {
     fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> Option<u32>;
 }
 
