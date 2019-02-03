@@ -37,12 +37,6 @@ fn main() {
         let mut direction = 0.;
 
         loop {
-            if cfg!(piston) {
-                vessel::piston::refresh();
-            } else {
-                vessel::term::refresh();
-            }
-
             write!(
                 stdout,
                 "{}{}",
