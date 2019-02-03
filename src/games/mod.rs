@@ -2,11 +2,8 @@ use std::io::Cursor;
 
 use clap::{clap_app, crate_authors, crate_description, crate_version};
 use rodio::Decoder;
-use rust_embed::RustEmbed;
 
-#[derive(RustEmbed)]
-#[folder = "assets/"]
-struct Assets;
+use super::Assets;
 
 mod breakout;
 mod demo; // ça
@@ -31,7 +28,7 @@ pub fn once(device: &rodio::Device, file: &'static str, x: f32, y: f32) {
     sink.detach();
 }
 
-pub trait Game {
+pub trait Game: Send {
     fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> Option<u32>;
 }
 

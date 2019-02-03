@@ -34,15 +34,15 @@ impl Game for Breakout {
             _ => {}
         };
 
-// Actions to be taken at every 50 tiks (move the ball, destroy bricks, emmit ponctual sound, et 
+// Actions to be taken at every 50 tiks (move the ball, destroy bricks, emmit ponctual sound, et
         if self.time % 50 == 0 {
 
 // Establish boolean parameter to true if the ball hit the right wall in order to change the
-// direction of said ball 
+// direction of said ball
             if self.ball_x == 5 {
                 self.hit_r_wall = true;
 
-// Emmit sound when wall is hit 
+// Emmit sound when wall is hit
                 once(
                     device,
                     "hit_wall.ogg",
@@ -61,7 +61,7 @@ impl Game for Breakout {
                 );
             }
 
-// When the ball is in the upper region of the game plane where the bricks are located,  
+// When the ball is in the upper region of the game plane where the bricks are located,
             if self.ball_y > 4 && self.ball_y < 7 {
                 println!("{} {}", self.ball_y, self.ball_x);
                 if self.bricks[usize::from(self.ball_x)][usize::from(self.ball_y - 5)] == true {
@@ -108,16 +108,17 @@ impl Game for Breakout {
                 );
                 return Some(self.points.into());
             }
-            
+
 // Time based trigger to determine if the player destroyed all of the available
 // bricks (upper 2 rows)
+
             if self.time == 2800 {
                 println!("You won!");
                 return Some(self.points.into());
             }
 
 // Execute movement of the ball in x/y coordinates depending on boolean hit
-// right wall or top 
+// right wall or top
             if !self.hit_r_wall {
                 self.ball_x += 1;
             } else {
