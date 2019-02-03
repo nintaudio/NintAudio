@@ -2,11 +2,8 @@ use std::io::Cursor;
 
 use clap::{clap_app, crate_authors, crate_description, crate_version};
 use rodio::Decoder;
-use rust_embed::RustEmbed;
 
-#[derive(RustEmbed)]
-#[folder = "assets/"]
-struct Assets;
+use super::Assets;
 
 mod breakout;
 mod demo; // ça
