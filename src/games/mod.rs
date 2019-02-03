@@ -36,6 +36,7 @@ pub trait Game {
 pub enum Action {
     Left,
     Right,
+    Up,
     Fire,
     Quit,
 }
