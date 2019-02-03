@@ -1,7 +1,6 @@
 use rand::Rng;
-use rodio::source::Source;
 
-use super::{audio, once, Action, Game};
+use super::{once, Action, Game};
 
 // whatever you want
 pub struct Moles {
@@ -27,9 +26,9 @@ pub fn new(device: &rodio::Device) -> Moles {
         moles: [false; 3],
         unspawn: 3,
         spawn: 0,
-        spawn_time: 3_00 / 2,
+        spawn_time: 1_00 / 2,
         spawn_rate: 3_00 / 2,
-        game_time: 60_00 / 2,
+        game_time: 30_00 / 2,
     }
 }
 
@@ -37,7 +36,9 @@ impl Game for Moles {
     fn update(&mut self, act: Option<Action>, device: &rodio::Device) -> Option<u32> {
         //Game Timer
         self.game_time -= 1;
-        if self.game_time == 0 {
+        if self.game_time == 3_00/2 || self.game_time == 2_00/2 || self.game_time == 1_00/2{
+            once(device, "bip.ogg", 0., 0.5);
+        }else if self.game_time == 0 {
             return Some(self.score as u32);
         }
 
@@ -47,8 +48,8 @@ impl Game for Moles {
             self.spawn = spawn(self.unspawn, &mut self.moles, &device);
 
             //Reduce Timer
-            self.spawn_rate -= if self.spawn_rate > 30{
-                    5 
+            self.spawn_rate -= if self.spawn_rate > 50{
+                    10
                 }else{
                     0
                 };
@@ -80,9 +81,9 @@ impl Game for Moles {
         self.score = 0;
     }
 
-    println!("Score: {} Remaning Time: {} SpawnTime: {}", 
-             self.score, 
-             self.game_time/50, 
+    println!("Score: {} Remaning Time: {} SpawnTime: {}",
+             self.score,
+             self.game_time/50,
              self.spawn_time);
     None
   }
@@ -111,7 +112,7 @@ fn spawn(unspawn: u8, moles: &mut [bool; 3], device: &rodio::Device) -> u8 {
 
 fn action_check(moles: &mut [bool;3], emitter: u8, device: &rodio::Device) -> i16{
     if moles[emitter as usize]{
-        once(device, "swing_hit.ogg", x(emitter), y(emitter)); 
+        once(device, "swing_hit.ogg", x(emitter), y(emitter));
         moles[emitter as usize] = false;
         2
     } else {
