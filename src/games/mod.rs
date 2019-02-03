@@ -1,5 +1,4 @@
 use std::io::Cursor;
-use rodio::source::Source;
 
 use clap::{clap_app, crate_authors, crate_description, crate_version};
 use rust_embed::RustEmbed;
