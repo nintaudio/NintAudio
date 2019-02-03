@@ -1,14 +1,12 @@
-use std::ops::AddAssign;
 use rodio::source::Source;
+use std::ops::AddAssign;
 
-use super::{Action, Game, audio, once};
+use super::{audio, once, Action, Game};
 
 const SPEED: i16 = 5;
 const DEPTH: i16 = 200;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(Copy)]
+#[derive(Debug, Clone, Copy)]
 struct Point {
     x: i16,
     y: i16,
@@ -54,12 +52,22 @@ impl Game for State {
         if self.ball.x > 40 {
             self.ball.x = 120;
             self.speed.x = -self.speed.x;
-            once(device, "wall_hit.mp3", f32::from(self.ball.x - self.position), f32::from(self.ball.y));
+            once(
+                device,
+                "wall_hit.mp3",
+                f32::from(self.ball.x - self.position),
+                f32::from(self.ball.y),
+            );
         }
         if self.ball.x < -40 {
             self.ball.x = -120;
             self.speed.x = -self.speed.x;
-            once(device, "wall_hit.mp3", f32::from(self.ball.x - self.position), f32::from(self.ball.y));
+            once(
+                device,
+                "wall_hit.mp3",
+                f32::from(self.ball.x - self.position),
+                f32::from(self.ball.y),
+            );
         }
 
         if self.ball.y == 0 {

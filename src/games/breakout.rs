@@ -1,6 +1,6 @@
 use rodio::source::Source;
 
-use super::{Action, Game, audio};
+use super::{audio, Action, Game};
 
 // whatever you want
 pub struct Breakout {
@@ -18,9 +18,8 @@ pub struct Breakout {
 
 impl Game for Breakout {
     fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
-        
         self.time += 1;
-        
+
         match act {
             Some(Action::Left) => {
                 self.left_count += 1;
@@ -33,34 +32,42 @@ impl Game for Breakout {
             _ => {}
         };
 
-        if self.ball_x == 4 {
-            self.hit_r_wall = true;
-        } else if self.ball_x == 0 {
-            self.hit_r_wall = false;
+        if self.time % 50 == 0 {
+            if self.ball_x == 4 {
+                self.hit_r_wall = true;
+            } else if self.ball_x == 0 {
+                self.hit_r_wall = false;
+            }
+
+            if self.ball_y == 6 {
+                self.hit_top = true;
+            } else if self.ball_y == 0 && self.position == self.ball_x {
+                self.hit_top = false;
+            }
+
+            if !self.hit_r_wall {
+                self.ball_x += 1;
+            } else {
+                self.ball_x -= 1;
+            }
+            if !self.hit_top {
+                self.ball_y += 1;
+            } else {
+                self.ball_y -= 1;
+            }
+
+            println!("ball_x: {} ball_y: {}", self.ball_x, self.ball_y);
+
+            println!("{}", self.time);
+
+            self.sink.set_emitter_position([
+                (f32::from(self.ball_x) - f32::from(self.position)) / 2.,
+                ((f32::from(self.ball_y)) / 2.),
+                0.,
+            ]);
         }
 
-        if self.ball_y == 6 {
-            self.hit_top = true;
-        } else if self.ball_y == 0 && self.position == self.ball_x {
-            self.hit_top = false;
-        }
-
-        if !self.hit_r_wall {
-            self.ball_x += 1;
-        } else {
-            self.ball_x -= 1;
-        }
-        if !self.hit_top {
-            self.ball_y += 1;
-        } else {
-            self.ball_y -= 1;
-        }
-
-        println!("{}",self.time);
-
-        println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
-        self.sink
-            .set_emitter_position([self.position as f32 / (f32::from(self.ball_x) - f32::from(self.position)), f32::from(self.ball_y), 0.]);
+        //     println!("{:?} l: {} r: {}", act, self.left_count, self.right_count);
         None
     }
 }
@@ -73,7 +80,8 @@ pub fn new(device: &rodio::Device) -> Breakout {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
-    let source = audio("music.ogg");
+    let source = rodio::source::SineWave::new(600);
+
     sink.append(source.repeat_infinite());
 
     Breakout {

@@ -1,56 +1,58 @@
 use rodio::source::Source;
 
-use super::{Action, Game, audio};
+use super::{audio, Action, Game};
 
 // whatever you want
 pub struct Moles {
-  left_count: u8,
-  right_count: u8,
-  position: i16,
-  sink: rodio::SpatialSink,
-  score: u8,
-  spawn_time: u16,
-  spawn_rate: u16,
-  game_time: u16,
-
+    left_count: u8,
+    right_count: u8,
+    position: i16,
+    sink: rodio::SpatialSink,
+    score: u8,
+    spawn_time: u16,
+    spawn_rate: u16,
+    game_time: u16,
 }
 
 impl Game for Moles {
-  fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
-    self.game_time -= 1;
-    self.spawn_time = if self.spawn_time == 0{
-        self.spawn_rate
-        }else{
-        self.spawn_time - 1
+    fn update(&mut self, act: Option<Action>, _device: &rodio::Device) -> Option<u32> {
+        self.game_time -= 1;
+        self.spawn_time = if self.spawn_time == 0 {
+            self.spawn_rate
+        } else {
+            self.spawn_time - 1
         };
 
-    match act {
-      Some(Action::Left) => {
-            self.left_count += 1;
-            self.position -= 1;
-            //
-        },
-      Some(Action::Right) => {
-            self.right_count += 1;
-            self.position += 1;
-        },
-      Some(Action::Up) => {
-            self.score += 1;
-        },
-      _ => {},
-    };
+        match act {
+            Some(Action::Left) => {
+                self.left_count += 1;
+                self.position -= 1;
+                //
+            }
+            Some(Action::Right) => {
+                self.right_count += 1;
+                self.position += 1;
+            }
+            Some(Action::Up) => {
+                self.score += 1;
+            }
+            _ => {}
+        };
 
-    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}",
-             act,
-             self.left_count,
-             self.right_count,
-             self.score,
-             self.game_time/100,
-             self.spawn_time);
+        println!(
+            "{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}",
+            act,
+            self.left_count,
+            self.right_count,
+            self.score,
+            self.game_time / 100,
+            self.spawn_time
+        );
 
-    self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
-    None
-  }
+        self.sink
+            .set_emitter_position([self.position as f32 / 10., 0., 0.]);
+        None
+    }
 }
 
 // Create a new game
@@ -74,8 +76,8 @@ pub fn new(device: &rodio::Device) -> Moles {
         score: 0,
         spawn_time: 5_00,
         spawn_rate: 5_00,
-        game_time: 60_00}
-
+        game_time: 60_00,
+    }
 }
 
 // One-line description
