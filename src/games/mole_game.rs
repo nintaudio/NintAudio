@@ -28,12 +28,13 @@ impl Game for Moles {
       Some(Action::Left) => {
             self.left_count += 1;
             self.position -= 1;
+            //
         },
       Some(Action::Right) => {
             self.right_count += 1;
             self.position += 1;
         },
-      Some(Action::Fire) => {
+      Some(Action::Up) => {
             self.score += 1;
         },
       _ => {},
@@ -47,7 +48,7 @@ impl Game for Moles {
              self.game_time/100, 
              self.spawn_time);
     
-    self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);
+    self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);    
     None
   }
 }
@@ -60,6 +61,8 @@ pub fn new(device: &rodio::Device) -> Moles {
         [1., 0., 0.],  // left ear
         [-1., 0., 0.], // right ear
     );
+
+    let swing_hit = audio!("swing_hit.mp3");
     let source = audio!("enemy_spawn.mp3");
     sink.append(source.repeat_infinite());
 
@@ -67,7 +70,8 @@ pub fn new(device: &rodio::Device) -> Moles {
         left_count: 0, 
         right_count: 0, 
         position: 0, 
-        sink, score: 0, 
+        sink, 
+        score: 0, 
         spawn_time: 5_00, 
         spawn_rate: 5_00, 
         game_time: 60_00}
