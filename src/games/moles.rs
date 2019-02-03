@@ -48,8 +48,8 @@ impl Game for Moles {
             
 
             //Reduce Timer
-            self.spawn_rate -= if self.spawn_rate > 25{
-                    2
+            self.spawn_rate -= if self.spawn_rate > 30{
+                    5 
                 }else{
                     0
                 };
@@ -66,13 +66,13 @@ impl Game for Moles {
 
     match act {
       Some(Action::Left) => {
-            self.score += action_check(self.moles[0], 0, &device);
+            self.score += action_check(&mut self.moles, 0, &device);
         },
       Some(Action::Right) => {
-            self.score += action_check(self.moles[2], 2, &device);
+            self.score += action_check(&mut self.moles, 2, &device);
         },
       Some(Action::Up) => {
-            self.score += action_check(self.moles[1], 1, &device);
+            self.score += action_check(&mut self.moles, 1, &device);
         },
       _ => {},
     };
@@ -81,24 +81,16 @@ impl Game for Moles {
         self.score = 0;
     }
 
-    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {} Moles: {}, {}, {} Unspawn: {} Spawn: {}",
-             act, 
-             self.left_count, 
-             self.right_count, 
+    println!("Score: {} Remaning Time: {} SpawnTime: {}", 
              self.score, 
              self.game_time/50, 
-             self.spawn_time,
-             if self.moles[0]{"1"}else{"0"},
-             if self.moles[1]{"1"}else{"0"},
-             if self.moles[2]{"1"}else{"0"},
-             self.unspawn,
-             self.spawn);
+             self.spawn_time);
     None
   }
 }
 
 fn unspawn(unspawn: u8, spawn: u8, moles: &mut [bool; 3], device: &rodio::Device){
-    if unspawn < 3{
+    if unspawn < 3 && moles[unspawn as usize]{
         moles[unspawn as usize] = false;
         once(device, "enemy_unspawn.ogg", x(unspawn), y(unspawn));
     }
@@ -118,9 +110,10 @@ fn spawn(unspawn: u8, moles: &mut [bool; 3], device: &rodio::Device) -> u8{
     spawn
 }
 
-fn action_check(hit: bool, emitter: u8, device: &rodio::Device) -> i16{
-    if hit{
-        once(device, "swing_hit.ogg", x(emitter), y(emitter));
+fn action_check(moles: &mut [bool;3], emitter: u8, device: &rodio::Device) -> i16{
+    if moles[emitter as usize]{
+        once(device, "swing_hit.ogg", x(emitter), y(emitter)); 
+        moles[emitter as usize] = false;
         2
     }else{
         once(device, "swing_miss_hit.ogg", x(emitter), y(emitter));
@@ -140,7 +133,7 @@ fn x(position: u8) -> f32{
 
 fn y(position: u8) -> f32{
     if position == 1{
-        2.
+        1.
     }else{
         0.
     }
