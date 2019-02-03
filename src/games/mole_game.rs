@@ -12,6 +12,7 @@ pub struct Moles {
   spawn_time: u16,
   spawn_rate: u16,
   game_time: u16,
+  moles: [bool; 3],
 
 }
 
@@ -40,13 +41,16 @@ impl Game for Moles {
       _ => {},
     };
 
-    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {}", 
+    println!("{:?} l: {} r: {} Score: {} Time: {} SpawnTime: {} Moles: {}, {}, {}", 
              act, 
              self.left_count, 
              self.right_count, 
              self.score, 
              self.game_time/100, 
-             self.spawn_time);
+             self.spawn_time,
+             if self.moles[0]{"1"}else{"0"},
+             self.moles[1],
+             self.moles[2]);
     
     self.sink.set_emitter_position([self.position as f32 / 10., 0., 0.]);    
     None
@@ -72,6 +76,7 @@ pub fn new(device: &rodio::Device) -> Moles {
         position: 0, 
         sink, 
         score: 0, 
+        moles: [false; 3],
         spawn_time: 5_00, 
         spawn_rate: 5_00, 
         game_time: 60_00}
