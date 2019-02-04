@@ -5,8 +5,8 @@ variables:
   RUST_BACKTRACE: "1"
 
 stages:
-  - build
   - test
+  - build
   #- deploy
 
 .build_template: &build_script
@@ -28,25 +28,25 @@ stages:
     - cargo test --verbose
     - cargo clippy -- -Dwarnings
 
-windows:stable:
-  script: *build_script
-  stage: build
-  cache:
-    paths:
-        - target/release/deps
-  tags:
-    - windows
-
-macos:stable:
-  script: *build_script
-  stage: build
-  cache:
-    paths:
-        - target/release/deps
-  tags:
-    - macos
+# windows:
+#   script: *build_script
+#   stage: build
+#   cache:
+#     paths:
+#         - target/release/deps
+#   tags:
+#     - windows
+# 
+# macos:
+#   script: *build_script
+#   stage: build
+#   cache:
+#     paths:
+#         - target/release/deps
+#   tags:
+#     - macos
     
-linux:v1-31-0:
+linux:
   script: *build_script
   stage: build
   before_script: *linux_deps
@@ -54,12 +54,12 @@ linux:v1-31-0:
     paths:
         - target/release/deps
 
-test-linux:stable:
+test:stable:
   script: *test_script
   stage: test
   before_script: *linux_deps
 
-test-linux:beta:
+test:beta:
   allow_failure: true
   image: rustdocker/rust:nightly
   script: *test_script
