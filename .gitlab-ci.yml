@@ -52,7 +52,10 @@ linux:
   before_script: *linux_deps
   cache:
     paths:
-        - target/release/deps
+      - target/release/deps
+  artifacts:
+    paths:
+      - target/release/nintaudio
 
 test:stable:
   script: *test_script
