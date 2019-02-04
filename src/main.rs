@@ -32,6 +32,8 @@ fn main() {
     .unwrap();
     stdout.flush().unwrap();
 
+    games::once(&device, "start_sound.ogg", 0., 0.);
+
     thread::spawn(move || {
         let mut gilrs = Gilrs::new().unwrap();
         let mut direction = 0.;
@@ -79,12 +81,14 @@ fn main() {
 
             if let Some(games::Action::Quit) = act {
                 println!("Good bye!");
-                std::process::exit(0);
+                games::once(&device, "end_sound.ogg", 0., 0.);
+                return;
             }
 
             if let Some(score) = game.update(act, &device) {
                 println!("You made {} point(s)", score);
-                std::process::exit(0);
+                games::once(&device, "end_sound.ogg", 0., 0.);
+                return;
             }
 
             thread::sleep(Duration::from_millis(20));
