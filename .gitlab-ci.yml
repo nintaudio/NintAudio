@@ -15,7 +15,7 @@ variables:
 .linux_dependencies: &linux_deps
   ### run build, test and doc
     - apt-get update -yqq
-    - apt-get install -yqq --no-install-recommends build-essential libasound2-dev
+    - apt-get install -yqq --no-install-recommends build-essential libasound2-dev libudev-dev
 
 # Install a C compiler, cmake and git into the container.
 .test_template: &test_script
