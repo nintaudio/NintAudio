@@ -4,6 +4,11 @@ variables:
   CARGO_HOME: $CI_PROJECT_DIR/cargo
   RUST_BACKTRACE: "1"
 
+stages:
+  - build
+  - test
+  #- deploy
+
 .build_template: &build_script
   ### run build, test and doc
     - rustc --version && cargo --version      # Print version info for debugging
@@ -29,6 +34,8 @@ windows:stable:
   cache:
     paths:
         - target/release/deps
+  tags:
+    - windows
 
 macos:stable:
   script: *build_script
@@ -36,6 +43,8 @@ macos:stable:
   cache:
     paths:
         - target/release/deps
+  tags:
+    - macos
     
 linux:v1-31-0:
   script: *build_script
