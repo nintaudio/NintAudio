@@ -13,7 +13,6 @@ stages:
   ### run build, test and doc
     - rustc --version && cargo --version      # Print version info for debugging
     - cargo build --release
-    - cargo build --release --features 'piston'
     - cargo doc
 
 # Install a C compiler, cmake and git into the container.
@@ -28,15 +27,19 @@ stages:
     - cargo test --verbose
     - cargo clippy -- -Dwarnings
 
-# windows:
-#   script: *build_script
-#   stage: build
-#   cache:
-#     paths:
-#         - target/release/deps
-#   tags:
-#     - windows
-# 
+windows:
+  image: "sseemayer/rust-musl-builder-mingw:latest"
+  stage: build
+    cache:
+    paths:
+      - target/x86_64-pc-windows-gnu/release/deps
+  artifacts:
+    paths:
+      - target/x86_64-pc-windows-gnu/release/nintaudio.exe
+  script:
+    - rustc --version && cargo --version      # Print version info for debugging
+    - cargo build --release --target x86_64-pc-windows-gnu
+
 # macos:
 #   script: *build_script
 #   stage: build
