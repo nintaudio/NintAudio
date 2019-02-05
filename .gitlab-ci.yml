@@ -56,11 +56,16 @@ linux:
   artifacts:
     paths:
       - target/release/nintaudio
+      - target/docs
 
 test:stable:
+  image: rustdocker/rust:stable
   script: *test_script
   stage: test
   before_script: *linux_deps
+  cache:
+    paths:
+      - target/debug/deps
 
 test:beta:
   allow_failure: true
@@ -68,3 +73,6 @@ test:beta:
   script: *test_script
   stage: test
   before_script: *linux_deps
+  cache:
+    paths:
+      - target/debug/deps
