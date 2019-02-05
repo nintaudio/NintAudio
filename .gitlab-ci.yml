@@ -30,9 +30,9 @@ stages:
 windows:
   image: "sseemayer/rust-musl-builder-mingw:latest"
   stage: build
-    cache:
-        paths:
-          - target/x86_64-pc-windows-gnu/release/deps
+  cache:
+    paths:
+      - target/x86_64-pc-windows-gnu/release/deps
   artifacts:
     paths:
       - target/x86_64-pc-windows-gnu/release/nintaudio.exe
