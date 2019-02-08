@@ -28,7 +28,7 @@ stages:
     - cargo clippy -- -Dwarnings
 
 windows:
-  image: "sseemayer/rust-musl-builder-mingw:latest"
+  image: tomaka/rust-mingw-docker:latest
   stage: build
   cache:
     paths:
