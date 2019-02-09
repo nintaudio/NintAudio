@@ -37,8 +37,9 @@ windows:
     paths:
       - target/x86_64-pc-windows-gnu/release/nintaudio.exe
   script:
+    - cp -r /root/.cargo $HOME
     - rustc --version && cargo --version      # Print version info for debugging
-    - CARGO_TARGET_I686_PC_WINDOWS_GNU_LINKER=1 cargo build --release --target x86_64-pc-windows-gnu 
+    - cargo build --release --target x86_64-pc-windows-gnu
 
 # macos:
 #   script: *build_script
@@ -48,7 +49,7 @@ windows:
 #         - target/release/deps
 #   tags:
 #     - macos
-    
+
 linux:
   script: *build_script
   stage: build
