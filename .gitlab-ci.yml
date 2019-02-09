@@ -1,8 +1,13 @@
 image: "rust:latest"
 
 variables:
-  CARGO_HOME: $CI_PROJECT_DIR/cargo
+  CARGO_HOME: /root/.cargo
   RUST_BACKTRACE: "1"
+
+cache:
+  paths:
+    - ${CARGO_HOME}
+    - ./target
 
 stages:
   - test
@@ -30,14 +35,10 @@ stages:
 windows:
   image: tomaka/rust-mingw-docker:latest
   stage: build
-  cache:
-    paths:
-      - target/x86_64-pc-windows-gnu/release/deps
   artifacts:
     paths:
       - target/x86_64-pc-windows-gnu/release/nintaudio.exe
   script:
-    - cp -r /root/.cargo $HOME
     - rustc --version && cargo --version      # Print version info for debugging
     - cargo build --release --target x86_64-pc-windows-gnu
 
@@ -54,9 +55,6 @@ linux:
   script: *build_script
   stage: build
   before_script: *linux_deps
-  cache:
-    paths:
-      - target/release/deps
   artifacts:
     paths:
       - target/release/nintaudio
@@ -67,9 +65,6 @@ test:stable:
   script: *test_script
   stage: test
   before_script: *linux_deps
-  cache:
-    paths:
-      - target/debug/deps
 
 test:beta:
   allow_failure: true
@@ -77,6 +72,3 @@ test:beta:
   script: *test_script
   stage: test
   before_script: *linux_deps
-  cache:
-    paths:
-      - target/debug/deps
